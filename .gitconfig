@@ -1,3 +1,7 @@
 [user]
 	email = temusqrlfrvr@gmail.com
 	name = temusqrlfrvr@gmail.com
+[cridential]
+	helper = store --file ~/.git-cridentials
+[credential]
+	helper = store --file ~/.git-credentials
