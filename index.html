@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundboard</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f0f0f0; transition: 0.3s; }
+        .btn-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; max-width: 800px; margin: 0 auto; }
+        
+        button { 
+            padding: 20px; font-weight: bold; cursor: pointer; border: none; border-radius: 8px;
+            background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s;
+            text-transform: uppercase;
+        }
+        button:active { transform: scale(0.95); }
+        
+        .stop-btn { background: #ff4444; color: white; margin-top: 30px; width: 100%; max-width: 300px; }
+
+        /* Speed Shake Effect */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-3px, -2px) rotate(-1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shaking { animation: shake 0.1s infinite; background: #ff0000; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>Soundboard</h1>
+
+    <div class="btn-container">
+        <button onclick="play('bomba')">” MI</button>
+        <button onclick="play('pullup')">PULL UP</button>
+        <button onclick="play('terrain')">PULL UP</button>
+        <button onclick="play('stall')">AIRBUS STALL</button>
+        <button onclick="play('speed', true)">SPEED BARK</button>
+        <button onclick="play('vine')">VINE BOOM</button>
+    </div>
+
+    <button class="stop-btn" onclick="stopAll()">STOP ALL</button>
+
+    <audio id="bomba" src="” MI BOMBA-” Sound effect.mp3"></audio>
+    <audio id="pullup" src="pull up terrain warning Sound Effect.mp3"></audio>
+    <audio id="terrain" src="pull up t e r r a i n.mp3"></audio>
+    <audio id="stall" src="Airbus Stall Alarm Sound Effect.mp3"></audio>
+    <audio id="speed" src="speed bark.mp3"></audio>
+    <audio id="vine" src="Vine boom sound effect.mp3"></audio>
+
+    <script>
+        const sounds = document.querySelectorAll('audio');
+
+        function play(id, shake = false) {
+            const sound = document.getElementById(id);
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Audio file missing or blocked:", e));
+
+            if (shake) {
+                document.body.classList.add('shaking');
+                sound.onended = () => document.body.classList.remove('shaking');
+            }
+        }
+
+        function stopAll() {
+            sounds.forEach(s => {
+                s.pause();
+                s.currentTime = 0;
+            });
+            document.body.classList.remove('shaking');
+        }
+    </script>
+</body>
+</html>
