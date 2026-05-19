@@ -3,217 +3,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Web Call</title>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <title>Global Communication Hub</title>
+    
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" crossorigin="anonymous"></script>
+    
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            text-align: center; 
-            padding: 50px 20px; 
-            background-color: #f4f7f6; 
+        :root {
+            --bg-darken: #020617;
+            --bg-base: #0f172a;
+            --bg-surface: #1e293b;
+            --clr-cyan: #38bdf8;
+            --clr-emerald: #10b981;
+            --clr-rose: #ef4444;
+            --border-muted: #334155;
+            --text-high: #f1f5f9;
+            --text-low: #94a3b8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
+            padding: 0;
+            background-color: var(--bg-base);
+            color: var(--text-high);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .card { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-            display: inline-block; 
-            max-width: 400px; 
-            width: 100%; 
+
+        /* Top Banner Navigation Framework */
+        .top-bar {
+            background-color: var(--bg-surface);
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-muted);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        .top-bar h1 { 
+            margin: 0; 
+            font-size: 22px; 
+            color: var(--clr-cyan); 
+            letter-spacing: 0.5px;
+        }
+        .top-bar p { 
+            margin: 6px 0 0 0; 
+            font-size: 14px; 
+            color: var(--text-low); 
+        }
+        #my-id { 
+            font-weight: 800; 
+            color: var(--clr-rose); 
+            font-size: 18px; 
+            letter-spacing: 1.5px;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* 50/50 Dual Panel Workspace Grid */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
             box-sizing: border-box;
+            overflow: hidden;
         }
-        input { 
-            width: 80%; 
-            padding: 12px; 
-            margin: 15px 0; 
-            border: 1px solid #ccc; 
-            border-radius: 5px; 
-            text-align: center; 
-            font-size: 16px;
+        .left-panel {
+            border-right: 1px solid var(--border-muted);
+            background-color: var(--bg-surface);
         }
-        button { 
-            background-color: #2ec4b6; 
-            color: white; 
-            border: none; 
-            padding: 12px 24px; 
-            font-size: 16px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            margin: 5px; 
-            font-weight: bold;
-            transition: opacity 0.2s;
+        .right-panel {
+            background-color: var(--bg-base);
         }
-        button:active {
-            opacity: 0.8;
+
+        h2 { 
+            margin-top: 0; 
+            margin-bottom: 15px;
+            font-size: 18px; 
+            border-bottom: 2px solid var(--border-muted); 
+            padding-bottom: 10px; 
+            color: #f8fafc;
         }
-        button.hangup { 
-            background-color: #e71d36; 
+        
+        /* Terminal Log Containers */
+        .log-box {
+            flex: 1;
+            background-color: var(--bg-darken);
+            border: 1px solid var(--border-muted);
+            border-radius: 8px;
+            padding: 18px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
         }
-        #status { 
-            font-weight: bold; 
-            color: #ff9f1c; 
-            margin: 20px 0 10px 0; 
-            font-size: 15px;
+        .log-box p { 
+            margin: 8px 0; 
+            font-size: 14px; 
+            line-height: 1.5; 
+            word-break: break-word;
         }
-        hr {
-            border: 0;
-            height: 1px;
-            background: #eee;
-            margin: 20px 0;
+        
+        /* Log Formatting Classes */
+        .msg-server { color: #f59e0b; font-style: italic; font-weight: 500; }
+        .msg-you { color: var(--clr-cyan); text-align: right; margin-left: 20%; }
+        .msg-friend { color: var(--clr-emerald); text-align: left; margin-right: 20%; }
+        .msg-system-err { color: var(--clr-rose); font-weight: 600; }
+
+        /* Form Control Interfaces */
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        input {
+            flex: 1;
+            background: var(--bg-base);
+            border: 1px solid #475569;
+            border-radius: 6px;
+            padding: 12px 16px;
+            color: #ffffff;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        input:focus { 
+            outline: none;
+            border-color: var(--clr-cyan);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+        }
+        input:disabled {
+            background-color: var(--bg-darken);
+            color: var(--text-low);
+            cursor: not-allowed;
+            border-color: var(--border-muted);
+        }
+        
+        button {
+            background-color: var(--clr-cyan);
+            color: #0f172a;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        button:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+        button:active:not(:disabled) { transform: translateY(0); }
+        button:disabled {
+            background-color: #475569 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .btn-decline { background-color: var(--clr-rose); color: white; }
+        .btn-action { background-color: var(--clr-emerald); color: white; }
+
+        /* Incoming Signaling Call Notification Banner */
+        #incoming-call-alert {
+            background-color: #7c2d12;
+            border: 1px dashed #ea580c;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            animation: pulseBanner 2s infinite alternate;
+        }
+        @keyframes pulseBanner {
+            0% { box-shadow: 0 0 4px #7c2d12; }
+            100% { box-shadow: 0 0 16px #ea580c; }
+        }
+        #incoming-call-alert span { 
+            color: #fdba74; 
+            font-weight: 700; 
+            font-size: 14px; 
+        }
+        .alert-btn-group { display: flex; gap: 8px; }
+
+        /* Media Auto-play Intercept Notification Overlay */
+        #autoplay-bypass-overlay {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #f59e0b;
+            color: #020617;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 100;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>Global Web Call</h2>
-        
-        <p>Your Calling ID: <br><strong id="my-id" style="font-size: 28px; color: #011627; letter-spacing: 2px;">Generating...</strong></p>
-        
-        <hr>
-
-        <h3>Make a Call</h3>
-        <input type="text" id="friend-id-input" placeholder="Enter 4-digit Calling ID" inputmode="numeric" pattern="[0-9]*">
-        <br>
-        <button onclick="startCall()">📞 Call Friend</button>
-        <button class="hangup" onclick="hangUp()">❌ End Call</button>
-
-        <div id="status">Status: Connecting to network...</div>
+    <div class="top-bar">
+        <h1>Global Communication Hub</h1>
+        <p>Your Assigned Identity Signature: <span id="my-id">Allocating Hardware Ring...</span></p>
     </div>
 
-    <audio id="remote-audio" autoplay></audio>
+    <div class="workspace">
+        
+        <div class="panel left-panel">
+            <h2>💬 Global Chat Platform</h2>
+            <div class="log-box" id="chatbox">
+                <p class="msg-server">System Status: Booting isolated communication loops...</p>
+            </div>
+            <div class="controls">
+                <input type="text" id="chat-target-input" placeholder="Peer ID Signature" style="max-width: 130px;">
+                <input type="text" id="message-input" placeholder="Type verified transmission..." disabled>
+                <button id="send-btn" disabled>Send</button>
+            </div>
+            <button id="connect-chat-btn" style="margin-top: 12px;" class="btn-action">Connect Chat Interface</button>
+        </div>
+
+        <div class="panel right-panel">
+            <h2>📞 Audio Calling Node</h2>
+            
+            <div id="incoming-call-alert">
+                <span id="alert-text">📢 INCOMING SECURE VOICE REQUEST</span>
+                <div class="alert-btn-group">
+                    <button id="accept-call-btn" class="btn-action">Accept (Y)</button>
+                    <button id="decline-call-btn" class="btn-decline">Decline (N)</button>
+                </div>
+            </div>
+
+            <div class="log-box" id="call-log">
+                <p style="color: #64748b; font-style: italic;">Awaiting telephony routing instruction matrix...</p>
+            </div>
+            <div class="controls">
+                <input type="text" id="call-target-input" placeholder="Enter Destination Network Code" inputmode="numeric" pattern="[0-9]*">
+                <button id="dial-call-btn">Call Audio</button>
+                <button id="hangup-call-btn" class="btn-decline">Hang Up</button>
+            </div>
+        </div>
+
+        <div id="autoplay-bypass-overlay">⚠️ AUDIO LOCKED BY BROWSER: CLICK HERE TO UNMUTE</div>
+    </div>
+
+    <audio id="remote-audio" autoplay playsinline style="position: absolute; width:1px; height:1px; opacity:0; pointer-events:none;"></audio>
 
     <script>
-        let peer = null;
-        let localStream = null;
-        let currentCall = null;
+        // Use an isolated closure layer block to protect core application state from cross-origin exceptions
+        (function() {
+            'use strict';
 
-        // 1. Safe ID Generation Function
-        function generateShortId() {
-            return Math.floor(1000 + Math.random() * 9000).toString();
-        }
+            // Centralized Runtime Application State Controller
+            const AppState = {
+                peer: null,
+                dataConn: null,
+                activeCall: null,
+                localStream: null,
+                pendingIncomingCall: null,
+                identityName: "Node_Initializing",
+                remotePartnerName: "Remote_Node"
+            };
 
-        // 2. Safe Peer Initialization Wrapper
-        function initializePeer() {
-            const myShortId = generateShortId();
-            
-            // Destroy any leftover instance safely before building a new one
-            if (peer) {
-                try { peer.destroy(); } catch(e) {}
+            function getEl(id) { return document.getElementById(id); }
+
+            function generateShortId() {
+                return Math.floor(1000 + Math.random() * 9000).toString();
             }
 
-            peer = new Peer(myShortId); 
-
-            // Handle successful connection assignment
-            peer.on('open', function(id) {
-                document.getElementById('my-id').innerText = id;
-                document.getElementById('status').innerText = "Status: Ready to call or receive!";
-            });
-
-            // Handle incoming audio calls
-            peer.on('call', function(incomingCall) {
-                document.getElementById('status').innerText = "Status: Incoming call! Connecting...";
+            function appendChatLog(context, payload) {
+                const box = getEl('chatbox');
+                if (!box) return;
                 
-                navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-                    .then(function(stream) {
-                        localStream = stream;
-                        incomingCall.answer(stream); 
-                        currentCall = incomingCall;
-                        setupCallHandlers(incomingCall);
-                    })
-                    .catch(function(err) {
-                        console.error("Mic access error:", err);
-                        alert("Microphone required to answer calls. Please check site permissions!");
-                        document.getElementById('status').innerText = "Status: Mic permission error.";
-                    });
-            });
+                let logClass = "msg-friend";
+                if (context === "System" || context === "ServerLog") logClass = "msg-server";
+                if (context === "Error") logClass = "msg-system-err";
+                if (context === "You") logClass = "msg-you";
 
-            // Global Error Management to stop app from breaking
-            peer.on('error', function(err) {
-                console.warn("PeerJS Error Caught safely:", err.type);
-                
-                // If the 4-digit ID is already in use by someone else, auto-retry with a new code
-                if (err.type === 'unavailable-id') {
-                    document.getElementById('status').innerText = "Status: Code taken, assigning new ID...";
-                    setTimeout(initializePeer, 500); 
-                } 
-                // Handle when dialing a code that doesn't exist on the server
-                else if (err.type === 'peer-not-found') {
-                    alert("The ID you called does not exist. Check the number and try again!");
-                    document.getElementById('status').innerText = "Status: Call failed. Target not found.";
-                    stopMic();
-                } 
-                else {
-                    document.getElementById('status').innerText = "Status: Error encountered. Reconnecting...";
-                    stopMic();
-                }
-            });
-        }
-
-        // 3. Handle outgoing dials safely
-        function startCall() {
-            const friendId = document.getElementById('friend-id-input').value.trim();
-            if (!friendId) return alert("Please enter a 4-digit Calling ID first!");
-
-            document.getElementById('status').innerText = "Status: Requesting mic access...";
-
-            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-                .then(function(stream) {
-                    localStream = stream;
-                    document.getElementById('status').innerText = "Status: Dialing...";
-                    
-                    const call = peer.call(friendId, stream); 
-                    currentCall = call;
-                    setupCallHandlers(call);
-                })
-                .catch(function(err) {
-                    console.error("Mic access error:", err);
-                    alert("Microphone required to make calls. Check your browser permissions!");
-                    document.getElementById('status').innerText = "Status: Mic permission error.";
-                });
-        }
-
-        // 4. Bind listeners to active voice streams
-        function setupCallHandlers(call) {
-            call.on('stream', function(remoteStream) {
-                document.getElementById('status').innerText = "Status: 🟢 Connected! Speaking...";
-                const remoteAudio = document.getElementById('remote-audio');
-                
-                // Keep audio fallback secure for safari/ios rendering environments
-                if ('srcObject' in remoteAudio) {
-                    remoteAudio.srcObject = remoteStream;
-                } else {
-                    remoteAudio.src = window.URL.createObjectURL(remoteStream);
-                }
-            });
-
-            call.on('close', function() {
-                document.getElementById('status').innerText = "Status: Call ended.";
-                stopMic();
-            });
-        }
-
-        // 5. Clean termination commands
-        function hangUp() {
-            if (currentCall) {
-                try { currentCall.close(); } catch(e){}
+                const line = document.createElement('p');
+                line.className = logClass;
+                line.innerHTML = `<strong>${context}:</strong> ${payload}`;
+                box.appendChild(line);
+                box.scrollTop = box.scrollHeight;
             }
-            document.getElementById('status').innerText = "Status: Call hung up.";
-            stopMic();
-        }
 
-        function stopMic() {
-            if (localStream) {
+            function appendCallLog(messageString) {
+                const box = getEl('call-log');
+                if (!box) return;
+
+                const timestamp = new Date().toLocaleTimeString();
+                const line = document.createElement('p');
+                line.style.color = "#cbd5e1";
+                line.innerHTML = `<span style="color: #64748b; font-family: monospace;">[${timestamp}]</span> ${messageString}`;
+                box.appendChild(line);
+                box.scrollTop = box.scrollHeight;
+            }
+
+            function resetChatUI() {
+                const msgInput = getEl('message-input');
+                const sendBtn = getEl('send-btn');
+                if (msgInput) msgInput.disabled = true;
+                if (sendBtn) {
+                    sendBtn.disabled = true;
+                    sendBtn.classList.add('btn-disabled');
+                }
+                AppState.dataConn = null;
+            }
+
+            function releaseHardwareTracks() {
+                if (AppState.localStream) {
+                    try {
+                        AppState.localStream.getTracks().forEach(track => {
+                            track.stop();
+                            appendCallLog(`System tracking release: Hardware driver stream channel closed.`);
+                        });
+                    } catch (e) {
+                        console.error("Hardware trace warning:", e);
+                    }
+                    AppState.localStream = null;
+                }
+                AppState.activeCall = null;
+                
+                const remoteAudio = getEl('remote-audio');
+                if (remoteAudio) {
+                    remoteAudio.srcObject = null;
+                    remoteAudio.src = "";
+                }
+                getEl('incoming-call-alert').style.display = "none";
+                getEl('autoplay-bypass-overlay').style.display = "none";
+            }
+
+            // Initializes core signaling connectivity layer
+            function bootNetworkEngine() {
+                const nodeSignature = generateShortId();
+                appendChatLog("System", "Requesting dynamic routing entry code signatures...");
+                
                 try {
-                    localStream.getTracks().forEach(track => track.stop());
+                    if (AppState.peer) { AppState.peer.destroy(); }
                 } catch(e) {}
-                localStream = null;
-            }
-        }
 
-        // Launch app initialization immediately
-        initializePeer();
-    </script>
-</body>
-</html>
+                // Triple-redundant STUN layout to force ICE candidate gathering across local origins
+                AppState.peer = new Peer(nodeSignature, {
+                    debug: 1,
+                    config: {
+                        'iceServers': [
+                            { 'urls': 'stun:stun.l.google.com:19302' },
+                            { 'urls': 'stun:stun1.l.google.com:19302' },
+                            { 'urls': 'stun:stun2.l.google.com:19302' }
+                        ]
+                    }
+                });
+
+                AppState.peer.on('open', (assignedId) => {
+                    AppState.identityName = "User_" + assignedId;
+                    getEl('my-id').innerText = assignedId;
+                    appendChatLog("System", `Network registration success. Dynamic routing key: ${AppState.identityName}`);
+                    appendCallLog(`Telephony node bound to identity gateway: ${assignedId}`);
+                });
+
+                // INBOUND MESSAGING HANDSHAKE LISTENER
+                AppState.peer.on('connection', (incomingConnectionChannel) => {
+                    if (AppState.dataConn) {
+                        incomingConnectionChannel.close();
+                        return;
+                    }
+                    AppState.dataConn = incomingConnectionChannel;
+                    bindDataChannelEventHooks();
+                });
+
+                // INBOUND AUDIO CALL RECEPTION SIGNAL LISTENER
+                AppState.peer.on('call', (incomingVoiceStreamChannel) => {
+                    AppState.pendingIncomingCall = incomingVoiceStreamChannel;
+                    appendCallLog(`📢 INCOMING SECURE VOICE CHANNEL LINE DETECTED FROM PEER: ${incomingVoiceStreamChannel.peer}`);
+                    
+                    const alertFrame = getEl('incoming-call-alert');
+                    if (alertFrame) alertFrame.style.display = "flex";
+                });
+
+                // Defensive background capture engine intercepts error states to prevent loop crashes
+                AppState.peer.on('error', (networkError) => {
+                    console.warn("Caught PeerJS background network context exception:", networkError.type);
+                    if (networkError.type === 'unavailable-id') {
+                        setTimeout(bootNetworkEngine, 500);
+                    } else if (networkError.type === 'peer-not-found') {
+                        alert("Destination verification entry failed: Target network code is invalid or offline.");
+                        appendCallLog("Routing exception: Target endpoint node signature not present.");
+                        resetChatUI();
+                    } else {
+                        appendCallLog(`System alert: Background tracking exception intercepted (${networkError.type})`);
+                    }
+                });
+
+                AppState.peer.on('disconnected', () => {
+                    appendCallLog("Signaling layer disconnected. Running recovery link loops...");
+                    if (AppState.peer && !AppState.peer.destroyed) {
+                        AppState.peer.reconnect();
+                    }
+                });
+            }
+
+            function bindDataChannelEventHooks() {
+                if (!AppState.dataConn) return;
+
+                AppState.dataConn.on('open', () => {
+                    AppState.remotePartnerName = "User_" + AppState.dataConn.peer;
+                    appendChatLog("ServerLog", `${AppState.remotePartnerName} connected.`);
+                    
+                    const msgInput = getEl('message-input');
+                    const sendBtn = getEl('send-btn');
+                    if (msgInput) msgInput.disabled = false;
+                    if (sendBtn) {
+                        sendBtn.disabled = false;
+                        sendBtn.classList.remove('btn-disabled');
+                    }
+                });
+
+                AppState.dataConn.on('data', (payloadData) => {
+                    appendChatLog("Friend", payloadData);
+                });
+
+                AppState.dataConn.on('close', () => {
+                    appendChatLog("ServerLog", `${AppState.remotePartnerName} disconnected.`);
+                    resetChatUI();
+                });
+
+                AppState.dataConn.on('error', () => { resetChatUI(); });
+            }
+
+            /* --- CORE WEB API FUNCTION MAPPINGS BOUND SECURELY TO THE GLOBAL WINDOW SCOPE --- */
+            
+            window.initializeChatChannel = function() {
+                const targetInput = getEl('chat-target-input');
+                if (!targetInput) return;
+
+                const targetCode = targetInput.value.trim();
+                if (!targetCode) return alert("Target destination identity code required.");
+
+                if (AppState.peer && targetCode === AppState.peer.id) {
+                    return alert("Routing exception: Loopback channels to self cannot be established.");
+                }
+
+                appendChatLog("System", `Routing handshake handshake packet down target stream link: ${targetCode}...`);
+                AppState.dataConn = AppState.peer.connect(targetCode, { reliable: true });
+                bindDataChannelEventHooks();
+            };
+
+            window.sendMessage = function() {
+                const msgInput = getEl('message-input');
+                if (!msgInput) return;
+
+                const messagePayload = msgInput.value.trim();
+                if (!messagePayload || !AppState.dataConn) return;
+
+                try {
+                    AppState.dataConn.send(messagePayload);
+                    appendChatLog("You", messagePayload);
+                    msgInput.value = "";
+                    msgInput.focus();
+                } catch (e) {
+                    resetChatUI();
+                }
+            };
+
+            window.dialAudioStream = function() {
+                const dialInput = getEl('call-target-input');
+                if (!dialInput) return;
+
+                const destinationRouteCode = dialInput.
