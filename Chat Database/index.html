@@ -21,7 +21,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--bg-base);
@@ -32,7 +32,6 @@
             overflow: hidden;
         }
 
-        /* Top Banner Navigation Framework */
         .top-bar {
             background-color: var(--bg-surface);
             padding: 15px 20px;
@@ -41,172 +40,61 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             z-index: 10;
         }
-        .top-bar h1 { 
-            margin: 0; 
-            font-size: 22px; 
-            color: var(--clr-cyan); 
-            letter-spacing: 0.5px;
-        }
-        .top-bar p { 
-            margin: 6px 0 0 0; 
-            font-size: 14px; 
-            color: var(--text-low); 
-        }
+        .top-bar h1 { margin: 0; font-size: 22px; color: var(--clr-cyan); }
+        .top-bar p { margin: 6px 0 0 0; font-size: 14px; color: var(--text-low); }
         #my-id { 
-            font-weight: 800; 
-            color: var(--clr-rose); 
-            font-size: 18px; 
-            letter-spacing: 1.5px;
-            background: rgba(239, 68, 68, 0.1);
-            padding: 2px 8px;
-            border-radius: 4px;
+            font-weight: 800; color: var(--clr-rose); font-size: 18px; letter-spacing: 1.5px;
+            background: rgba(239, 68, 68, 0.1); padding: 2px 8px; border-radius: 4px;
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        /* 50/50 Dual Panel Workspace Grid */
-        .workspace {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-        .panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 24px;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-        .left-panel {
-            border-right: 1px solid var(--border-muted);
-            background-color: var(--bg-surface);
-        }
-        .right-panel {
-            background-color: var(--bg-base);
-        }
+        .workspace { display: flex; flex: 1; overflow: hidden; position: relative; }
+        .panel { flex: 1; display: flex; flex-direction: column; padding: 24px; box-sizing: border-box; overflow: hidden; }
+        .left-panel { border-right: 1px solid var(--border-muted); background-color: var(--bg-surface); }
+        .right-panel { background-color: var(--bg-base); }
 
-        h2 { 
-            margin-top: 0; 
-            margin-bottom: 15px;
-            font-size: 18px; 
-            border-bottom: 2px solid var(--border-muted); 
-            padding-bottom: 10px; 
-            color: #f8fafc;
-        }
+        h2 { margin-top: 0; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid var(--border-muted); padding-bottom: 10px; color: #f8fafc; }
         
-        /* Terminal Log Containers */
         .log-box {
-            flex: 1;
-            background-color: var(--bg-darken);
-            border: 1px solid var(--border-muted);
-            border-radius: 8px;
-            padding: 18px;
-            overflow-y: auto;
-            margin-bottom: 15px;
+            flex: 1; background-color: var(--bg-darken); border: 1px solid var(--border-muted);
+            border-radius: 8px; padding: 18px; overflow-y: auto; margin-bottom: 15px;
             box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
         }
-        .log-box p { 
-            margin: 8px 0; 
-            font-size: 14px; 
-            line-height: 1.5; 
-            word-break: break-word;
-        }
+        .log-box p { margin: 8px 0; font-size: 14px; line-height: 1.5; word-break: break-word; }
         
-        /* Log Formatting Classes */
         .msg-server { color: #f59e0b; font-style: italic; font-weight: 500; }
         .msg-you { color: var(--clr-cyan); text-align: right; margin-left: 20%; }
         .msg-friend { color: var(--clr-emerald); text-align: left; margin-right: 20%; }
         .msg-system-err { color: var(--clr-rose); font-weight: 600; }
 
-        /* Form Control Interfaces */
-        .controls {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
+        .controls { display: flex; gap: 12px; align-items: center; }
         input {
-            flex: 1;
-            background: var(--bg-base);
-            border: 1px solid #475569;
-            border-radius: 6px;
-            padding: 12px 16px;
-            color: #ffffff;
-            font-size: 14px;
-            transition: all 0.2s ease;
+            flex: 1; background: var(--bg-base); border: 1px solid #475569; border-radius: 6px;
+            padding: 12px 16px; color: #ffffff; font-size: 14px; transition: all 0.2s ease;
         }
-        input:focus { 
-            outline: none;
-            border-color: var(--clr-cyan);
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-        }
-        input:disabled {
-            background-color: var(--bg-darken);
-            color: var(--text-low);
-            cursor: not-allowed;
-            border-color: var(--border-muted);
-        }
+        input:focus { outline: none; border-color: var(--clr-cyan); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        input:disabled { background-color: var(--bg-darken); color: var(--text-low); cursor: not-allowed; border-color: var(--border-muted); }
         
         button {
-            background-color: var(--clr-cyan);
-            color: #0f172a;
-            border: none;
-            border-radius: 6px;
-            padding: 12px 24px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
+            background-color: var(--clr-cyan); color: #0f172a; border: none; border-radius: 6px;
+            padding: 12px 24px; font-weight: 700; font-size: 14px; cursor: pointer;
+            transition: all 0.2s ease; white-space: nowrap;
         }
         button:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-        button:active:not(:disabled) { transform: translateY(0); }
-        button:disabled {
-            background-color: #475569 !important;
-            color: #94a3b8 !important;
-            cursor: not-allowed;
-            transform: none !important;
-        }
+        button:disabled { background-color: #475569 !important; color: #94a3b8 !important; cursor: not-allowed; transform: none !important; }
         .btn-decline { background-color: var(--clr-rose); color: white; }
         .btn-action { background-color: var(--clr-emerald); color: white; }
 
-        /* Incoming Signaling Call Notification Banner */
         #incoming-call-alert {
-            background-color: #7c2d12;
-            border: 1px dashed #ea580c;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            animation: pulseBanner 2s infinite alternate;
+            background-color: #7c2d12; border: 1px dashed #ea580c; border-radius: 8px;
+            padding: 16px; margin-bottom: 20px; display: none; align-items: center; justify-content: space-between;
         }
-        @keyframes pulseBanner {
-            0% { box-shadow: 0 0 4px #7c2d12; }
-            100% { box-shadow: 0 0 16px #ea580c; }
-        }
-        #incoming-call-alert span { 
-            color: #fdba74; 
-            font-weight: 700; 
-            font-size: 14px; 
-        }
+        #incoming-call-alert span { color: #fdba74; font-weight: 700; font-size: 14px; }
         .alert-btn-group { display: flex; gap: 8px; }
 
-        /* Media Auto-play Intercept Notification Overlay */
         #autoplay-bypass-overlay {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: #f59e0b;
-            color: #020617;
-            padding: 15px 20px;
-            border-radius: 8px;
-            font-weight: 700;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 100;
-            cursor: pointer;
+            position: absolute; bottom: 20px; right: 20px; background: #f59e0b; color: #020617;
+            padding: 15px 20px; border-radius: 8px; font-weight: 700; display: none; z-index: 100; cursor: pointer;
         }
     </style>
 </head>
@@ -214,15 +102,14 @@
 
     <div class="top-bar">
         <h1>Global Communication Hub</h1>
-        <p>Your Assigned Identity Signature: <span id="my-id">Allocating Hardware Ring...</span></p>
+        <p>Your Assigned Identity Signature: <span id="my-id">Allocating Network Route...</span></p>
     </div>
 
     <div class="workspace">
-        
         <div class="panel left-panel">
             <h2>💬 Global Chat Platform</h2>
             <div class="log-box" id="chatbox">
-                <p class="msg-server">System Status: Booting isolated communication loops...</p>
+                <p class="msg-server">System Status: Booting core communication loop layers...</p>
             </div>
             <div class="controls">
                 <input type="text" id="chat-target-input" placeholder="Peer ID Signature" style="max-width: 130px;">
@@ -234,7 +121,6 @@
 
         <div class="panel right-panel">
             <h2>📞 Audio Calling Node</h2>
-            
             <div id="incoming-call-alert">
                 <span id="alert-text">📢 INCOMING SECURE VOICE REQUEST</span>
                 <div class="alert-btn-group">
@@ -242,7 +128,6 @@
                     <button id="decline-call-btn" class="btn-decline">Decline (N)</button>
                 </div>
             </div>
-
             <div class="log-box" id="call-log">
                 <p style="color: #64748b; font-style: italic;">Awaiting telephony routing instruction matrix...</p>
             </div>
@@ -259,223 +144,158 @@
     <audio id="remote-audio" autoplay playsinline style="position: absolute; width:1px; height:1px; opacity:0; pointer-events:none;"></audio>
 
     <script>
-        // Use an isolated closure layer block to protect core application state from cross-origin exceptions
         (function() {
             'use strict';
 
-            // Centralized Runtime Application State Controller
             const AppState = {
-                peer: null,
-                dataConn: null,
-                activeCall: null,
-                localStream: null,
-                pendingIncomingCall: null,
-                identityName: "Node_Initializing",
-                remotePartnerName: "Remote_Node"
+                peer: null, dataConn: null, activeCall: null, localStream: null,
+                pendingIncomingCall: null, identityName: "Node_Initializing", remotePartnerName: "Remote_Node"
             };
 
             function getEl(id) { return document.getElementById(id); }
-
-            function generateShortId() {
-                return Math.floor(1000 + Math.random() * 9000).toString();
-            }
+            function generateShortId() { return Math.floor(1000 + Math.random() * 9000).toString(); }
 
             function appendChatLog(context, payload) {
-                const box = getEl('chatbox');
-                if (!box) return;
-                
+                const box = getEl('chatbox'); if (!box) return;
                 let logClass = "msg-friend";
                 if (context === "System" || context === "ServerLog") logClass = "msg-server";
                 if (context === "Error") logClass = "msg-system-err";
                 if (context === "You") logClass = "msg-you";
-
-                const line = document.createElement('p');
-                line.className = logClass;
-                line.innerHTML = `<strong>${context}:</strong> ${payload}`;
-                box.appendChild(line);
-                box.scrollTop = box.scrollHeight;
+                const line = document.createElement('p'); line.className = logClass;
+                line.innerHTML = `<strong>${context}:</strong> ${payload}`; box.appendChild(line); box.scrollTop = box.scrollHeight;
             }
 
             function appendCallLog(messageString) {
-                const box = getEl('call-log');
-                if (!box) return;
-
-                const timestamp = new Date().toLocaleTimeString();
-                const line = document.createElement('p');
-                line.style.color = "#cbd5e1";
-                line.innerHTML = `<span style="color: #64748b; font-family: monospace;">[${timestamp}]</span> ${messageString}`;
-                box.appendChild(line);
-                box.scrollTop = box.scrollHeight;
+                const box = getEl('call-log'); if (!box) return;
+                const timestamp = new Date().toLocaleTimeString(); const line = document.createElement('p');
+                line.style.color = "#cbd5e1"; line.innerHTML = `<span style="color: #64748b; font-family: monospace;">[${timestamp}]</span> ${messageString}`;
+                box.appendChild(line); box.scrollTop = box.scrollHeight;
             }
 
             function resetChatUI() {
-                const msgInput = getEl('message-input');
-                const sendBtn = getEl('send-btn');
+                const msgInput = getEl('message-input'); const sendBtn = getEl('send-btn');
                 if (msgInput) msgInput.disabled = true;
-                if (sendBtn) {
-                    sendBtn.disabled = true;
-                    sendBtn.classList.add('btn-disabled');
-                }
+                if (sendBtn) { sendBtn.disabled = true; sendBtn.classList.add('btn-disabled'); }
                 AppState.dataConn = null;
             }
 
             function releaseHardwareTracks() {
                 if (AppState.localStream) {
-                    try {
-                        AppState.localStream.getTracks().forEach(track => {
-                            track.stop();
-                            appendCallLog(`System tracking release: Hardware driver stream channel closed.`);
-                        });
-                    } catch (e) {
-                        console.error("Hardware trace warning:", e);
-                    }
+                    try { AppState.localStream.getTracks().forEach(track => track.stop()); } catch (e) {}
                     AppState.localStream = null;
                 }
                 AppState.activeCall = null;
-                
                 const remoteAudio = getEl('remote-audio');
-                if (remoteAudio) {
-                    remoteAudio.srcObject = null;
-                    remoteAudio.src = "";
-                }
+                if (remoteAudio) { remoteAudio.srcObject = null; remoteAudio.src = ""; }
                 getEl('incoming-call-alert').style.display = "none";
                 getEl('autoplay-bypass-overlay').style.display = "none";
             }
 
-            // Initializes core signaling connectivity layer
             function bootNetworkEngine() {
                 const nodeSignature = generateShortId();
-                appendChatLog("System", "Requesting dynamic routing entry code signatures...");
-                
-                try {
-                    if (AppState.peer) { AppState.peer.destroy(); }
-                } catch(e) {}
-
-                // Triple-redundant STUN layout to force ICE candidate gathering across local origins
                 AppState.peer = new Peer(nodeSignature, {
-                    debug: 1,
-                    config: {
-                        'iceServers': [
-                            { 'urls': 'stun:stun.l.google.com:19302' },
-                            { 'urls': 'stun:stun1.l.google.com:19302' },
-                            { 'urls': 'stun:stun2.l.google.com:19302' }
-                        ]
-                    }
+                    debug: 1, config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }, { 'urls': 'stun:stun1.l.google.com:19302' }] }
                 });
 
                 AppState.peer.on('open', (assignedId) => {
-                    AppState.identityName = "User_" + assignedId;
-                    getEl('my-id').innerText = assignedId;
+                    AppState.identityName = "User_" + assignedId; getEl('my-id').innerText = assignedId;
                     appendChatLog("System", `Network registration success. Dynamic routing key: ${AppState.identityName}`);
                     appendCallLog(`Telephony node bound to identity gateway: ${assignedId}`);
                 });
 
-                // INBOUND MESSAGING HANDSHAKE LISTENER
                 AppState.peer.on('connection', (incomingConnectionChannel) => {
-                    if (AppState.dataConn) {
-                        incomingConnectionChannel.close();
-                        return;
-                    }
-                    AppState.dataConn = incomingConnectionChannel;
-                    bindDataChannelEventHooks();
+                    if (AppState.dataConn) { incomingConnectionChannel.close(); return; }
+                    AppState.dataConn = incomingConnectionChannel; bindDataChannelEventHooks();
                 });
 
-                // INBOUND AUDIO CALL RECEPTION SIGNAL LISTENER
                 AppState.peer.on('call', (incomingVoiceStreamChannel) => {
                     AppState.pendingIncomingCall = incomingVoiceStreamChannel;
-                    appendCallLog(`📢 INCOMING SECURE VOICE CHANNEL LINE DETECTED FROM PEER: ${incomingVoiceStreamChannel.peer}`);
-                    
-                    const alertFrame = getEl('incoming-call-alert');
-                    if (alertFrame) alertFrame.style.display = "flex";
+                    appendCallLog(`📢 INCOMING VOICE CHANNEL DETECTED FROM PEER: ${incomingVoiceStreamChannel.peer}`);
+                    getEl('incoming-call-alert').style.display = "flex";
                 });
 
-                // Defensive background capture engine intercepts error states to prevent loop crashes
                 AppState.peer.on('error', (networkError) => {
-                    console.warn("Caught PeerJS background network context exception:", networkError.type);
-                    if (networkError.type === 'unavailable-id') {
-                        setTimeout(bootNetworkEngine, 500);
-                    } else if (networkError.type === 'peer-not-found') {
-                        alert("Destination verification entry failed: Target network code is invalid or offline.");
-                        appendCallLog("Routing exception: Target endpoint node signature not present.");
-                        resetChatUI();
-                    } else {
-                        appendCallLog(`System alert: Background tracking exception intercepted (${networkError.type})`);
-                    }
-                });
-
-                AppState.peer.on('disconnected', () => {
-                    appendCallLog("Signaling layer disconnected. Running recovery link loops...");
-                    if (AppState.peer && !AppState.peer.destroyed) {
-                        AppState.peer.reconnect();
-                    }
+                    if (networkError.type === 'unavailable-id') { setTimeout(bootNetworkEngine, 500); } 
+                    else if (networkError.type === 'peer-not-found') { alert("Target verification entry failed."); resetChatUI(); }
                 });
             }
 
             function bindDataChannelEventHooks() {
                 if (!AppState.dataConn) return;
-
                 AppState.dataConn.on('open', () => {
                     AppState.remotePartnerName = "User_" + AppState.dataConn.peer;
                     appendChatLog("ServerLog", `${AppState.remotePartnerName} connected.`);
-                    
-                    const msgInput = getEl('message-input');
-                    const sendBtn = getEl('send-btn');
-                    if (msgInput) msgInput.disabled = false;
-                    if (sendBtn) {
-                        sendBtn.disabled = false;
-                        sendBtn.classList.remove('btn-disabled');
-                    }
+                    getEl('message-input').disabled = false; getEl('send-btn').disabled = false;
                 });
-
-                AppState.dataConn.on('data', (payloadData) => {
-                    appendChatLog("Friend", payloadData);
-                });
-
-                AppState.dataConn.on('close', () => {
-                    appendChatLog("ServerLog", `${AppState.remotePartnerName} disconnected.`);
-                    resetChatUI();
-                });
-
-                AppState.dataConn.on('error', () => { resetChatUI(); });
+                AppState.dataConn.on('data', (data) => appendChatLog("Friend", data));
+                AppState.dataConn.on('close', () => { appendChatLog("ServerLog", `Disconnected.`); resetChatUI(); });
             }
 
-            /* --- CORE WEB API FUNCTION MAPPINGS BOUND SECURELY TO THE GLOBAL WINDOW SCOPE --- */
-            
             window.initializeChatChannel = function() {
-                const targetInput = getEl('chat-target-input');
-                if (!targetInput) return;
-
-                const targetCode = targetInput.value.trim();
+                const targetCode = getEl('chat-target-input').value.trim();
                 if (!targetCode) return alert("Target destination identity code required.");
-
-                if (AppState.peer && targetCode === AppState.peer.id) {
-                    return alert("Routing exception: Loopback channels to self cannot be established.");
-                }
-
-                appendChatLog("System", `Routing handshake handshake packet down target stream link: ${targetCode}...`);
                 AppState.dataConn = AppState.peer.connect(targetCode, { reliable: true });
                 bindDataChannelEventHooks();
             };
 
             window.sendMessage = function() {
-                const msgInput = getEl('message-input');
-                if (!msgInput) return;
-
-                const messagePayload = msgInput.value.trim();
+                const msgInput = getEl('message-input'); const messagePayload = msgInput.value.trim();
                 if (!messagePayload || !AppState.dataConn) return;
-
-                try {
-                    AppState.dataConn.send(messagePayload);
-                    appendChatLog("You", messagePayload);
-                    msgInput.value = "";
-                    msgInput.focus();
-                } catch (e) {
-                    resetChatUI();
-                }
+                AppState.dataConn.send(messagePayload); appendChatLog("You", messagePayload); msgInput.value = "";
             };
 
             window.dialAudioStream = function() {
-                const dialInput = getEl('call-target-input');
-                if (!dialInput) return;
+                const destinationRouteCode = getEl('call-target-input').value.trim();
+                if (!destinationRouteCode) return alert("Destination code required.");
+                navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then((stream) => {
+                    AppState.localStream = stream;
+                    const outboundCallInstance = AppState.peer.call(destinationRouteCode, stream);
+                    AppState.activeCall = outboundCallInstance; bindAudioStreamEventHooks(outboundCallInstance);
+                }).catch(() => appendCallLog("CRITICAL: Microphone access denied or blocked by browser origin."));
+            };
 
-                const destinationRouteCode = dialInput.
+            window.acceptCallAction = function() {
+                if (!AppState.pendingIncomingCall) return;
+                getEl('incoming-call-alert').style.display = "none";
+                navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then((stream) => {
+                    AppState.localStream = stream; AppState.pendingIncomingCall.answer(stream);
+                    AppState.activeCall = AppState.pendingIncomingCall; bindAudioStreamEventHooks(AppState.pendingIncomingCall);
+                    AppState.pendingIncomingCall = null;
+                }).catch(() => releaseHardwareTracks());
+            };
+
+            window.declineCallAction = function() {
+                if (!AppState.pendingIncomingCall) return; getEl('incoming-call-alert').style.display = "none";
+                try { AppState.pendingIncomingCall.close(); } catch(e) {} AppState.pendingIncomingCall = null;
+            };
+
+            function bindAudioStreamEventHooks(callSessionInstance) {
+                callSessionInstance.on('stream', (incomingRemoteAudioStream) => {
+                    const audioPlaybackNode = getEl('remote-audio'); if (!audioPlaybackNode) return;
+                    audioPlaybackNode.srcObject = incomingRemoteAudioStream;
+                    audioPlaybackNode.onloadedmetadata = function() {
+                        audioPlaybackNode.play().catch(() => {
+                            const bypassOverlay = getEl('autoplay-bypass-overlay'); bypassOverlay.style.display = "block";
+                            bypassOverlay.onclick = function() { audioPlaybackNode.play(); bypassOverlay.style.display = "none"; };
+                        });
+                    };
+                });
+                callSessionInstance.on('close', () => releaseHardwareTracks());
+            }
+
+            window.hangupAudioStream = function() { if (AppState.activeCall) { AppState.activeCall.close(); } releaseHardwareTracks(); };
+
+            document.addEventListener("DOMContentLoaded", () => {
+                getEl('connect-chat-btn').addEventListener('click', window.initializeChatChannel);
+                getEl('send-btn').addEventListener('click', window.sendMessage);
+                getEl('dial-call-btn').addEventListener('click', window.dialAudioStream);
+                getEl('hangup-call-btn').addEventListener('click', window.hangupAudioStream);
+                getEl('accept-call-btn').addEventListener('click', window.acceptCallAction);
+                getEl('decline-call-btn').addEventListener('click', window.declineCallAction);
+                getEl('message-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') window.sendMessage(); });
+                bootNetworkEngine();
+            });
+        })();
+    </script>
+</body>
+</html>
