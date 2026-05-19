@@ -3,315 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Matrix Chat Engine</title>
+    <title>Global Web Call</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body {
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            text-align: center; 
+            padding: 50px 20px; 
+            background-color: #f4f7f6; 
             margin: 0;
-            padding: 20px;
-            background-color: #0b0b0d;
-            color: #e1e1e6;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
-
-        h1 {
-            margin: 0 0 5px 0;
-            color: #00ffcc;
-            font-size: 24px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
-        }
-
-        .subtitle {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .main-frame {
-            width: 100%;
-            max-width: 600px;
-            background-color: #121215;
-            border: 2px solid #222226;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            display: inline-block; 
+            max-width: 400px; 
+            width: 100%; 
             box-sizing: border-box;
         }
-
-        /* Access Portal Layer */
-        #loginPortal {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-        }
-
-        input {
-            background-color: #09090b;
-            border: 1px solid #2c2c35;
-            color: #fff;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #00ffcc;
-        }
-
-        .action-btn {
-            background-color: #00ffcc;
-            color: #0c0c0e;
-            border: none;
-            padding: 14px;
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .action-btn:hover {
-            background-color: #00d4b0;
-        }
-
-        /* Interface Interface Chat Room Layer */
-        #chatInterface {
-            display: none;
-            flex-direction: column;
-            height: 500px;
-        }
-
-        .room-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #222226;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
-        }
-
-        .room-title {
+        input { 
+            width: 80%; 
+            padding: 12px; 
+            margin: 15px 0; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            text-align: center; 
             font-size: 16px;
+        }
+        button { 
+            background-color: #2ec4b6; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            font-size: 16px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
             font-weight: bold;
-            color: #ff0055;
+            transition: opacity 0.2s;
         }
-
-        #messageBox {
-            flex: 1;
-            background-color: #09090b;
-            border: 1px solid #1c1c22;
-            border-radius: 6px;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 15px;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+        button:active {
+            opacity: 0.8;
         }
-
-        .msg-bubble {
-            max-width: 80%;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.4;
-            word-wrap: break-word;
+        button.hangup { 
+            background-color: #e71d36; 
         }
-
-        .msg-remote {
-            background-color: #1c1c24;
-            color: #e1e1e6;
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
+        #status { 
+            font-weight: bold; 
+            color: #ff9f1c; 
+            margin: 20px 0 10px 0; 
+            font-size: 15px;
         }
-
-        .msg-local {
-            background-color: #00ffcc;
-            color: #0c0c0e;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-            font-weight: 500;
-        }
-
-        .msg-meta {
-            font-size: 10px;
-            margin-bottom: 3px;
-            color: #888;
-            display: block;
-        }
-
-        .msg-local .msg-meta {
-            color: #333;
-        }
-
-        .input-bar {
-            display: flex;
-            gap: 10px;
-        }
-
-        #textInput {
-            flex: 1;
+        hr {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
 
-    <h1>Local Matrix Chat Engine</h1>
-    <div class="subtitle">Open multiple tabs of this file to chat locally instantly</div>
+    <div class="card">
+        <h2>Global Web Call</h2>
+        
+        <p>Your Calling ID: <br><strong id="my-id" style="font-size: 28px; color: #011627; letter-spacing: 2px;">Generating...</strong></p>
+        
+        <hr>
 
-    <div class="main-frame">
-        <div id="loginPortal">
-            <div class="form-group">
-                <label>Choose Screen Name</label>
-                <input type="text" id="usernameInput" placeholder="e.g., GhostRider" maxlength="15">
-            </div>
-            <div class="form-group">
-                <label>Enter Chat Room Access Code</label>
-                <input type="text" id="roomCodeInput" placeholder="e.g., 9942" maxlength="10">
-            </div>
-            <button class="action-btn" onclick="connectToChatRoom()">Initialize Access Terminal</button>
-        </div>
+        <h3>Make a Call</h3>
+        <input type="text" id="friend-id-input" placeholder="Enter 4-digit Calling ID" inputmode="numeric" pattern="[0-9]*">
+        <br>
+        <button onclick="startCall()">📞 Call Friend</button>
+        <button class="hangup" onclick="hangUp()">❌ End Call</button>
 
-        <div id="chatInterface">
-            <div class="room-header">
-                <div>Room Code: <span class="room-title" id="activeRoomLabel">0000</span></div>
-                <div style="font-size: 12px; color: #aaa;">User: <b id="activeUserLabel" style="color:#00ffcc;">-</b></div>
-            </div>
-
-            <div id="messageBox"></div>
-
-            <div class="input-bar">
-                <input type="text" id="textInput" placeholder="Type a secure message..." onkeydown="if(event.key === 'Enter') dispatchChatMessage()">
-                <button class="action-btn" onclick="dispatchChatMessage()" style="padding: 0 20px;">Send</button>
-            </div>
-        </div>
+        <div id="status">Status: Connecting to network...</div>
     </div>
 
+    <audio id="remote-audio" autoplay></audio>
+
     <script>
-        var currentUsername = "";
-        var currentRoomCode = "";
-        var lastPolledMessageCount = 0;
+        let peer = null;
+        let localStream = null;
+        let currentCall = null;
 
-        function connectToChatRoom() {
-            var userField = document.getElementById("usernameInput").value.trim();
-            var codeField = document.getElementById("roomCodeInput").value.trim();
+        // 1. Safe ID Generation Function
+        function generateShortId() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
 
-            if (!userField || !codeField) {
-                alert("Please complete both form entry parameters!");
-                return;
-            }
-
-            currentUsername = userField;
-            currentRoomCode = codeField.toUpperCase();
-
-            // Screen Interface swap modifications
-            document.getElementById("loginPortal").style.display = "none";
-            document.getElementById("chatInterface").style.display = "flex";
+        // 2. Safe Peer Initialization Wrapper
+        function initializePeer() {
+            const myShortId = generateShortId();
             
-            document.getElementById("activeRoomLabel").innerText = currentRoomCode;
-            document.getElementById("activeUserLabel").innerText = currentUsername;
-
-            // Load historical room messages data arrays if existing
-            renderMessageDatabase();
-
-            // Set up an automated check interval to scan for inbound text elements every 400ms
-            setInterval(renderMessageDatabase, 400);
-        }
-
-        function getRoomStorageKey() {
-            return "LOCAL_MATRIX_CHAT_ROOM_" + currentRoomCode;
-        }
-
-        function renderMessageDatabase() {
-            var storageKey = getRoomStorageKey();
-            var rawData = localStorage.getItem(storageKey);
-            var messagesList = [];
-
-            if (rawData) {
-                messagesList = JSON.parse(rawData);
+            // Destroy any leftover instance safely before building a new one
+            if (peer) {
+                try { peer.destroy(); } catch(e) {}
             }
 
-            // Optimize window element rendering loops if state balance arrays match exactly
-            if (messagesList.length === lastPolledMessageCount) return;
-            lastPolledMessageCount = messagesList.length;
+            peer = new Peer(myShortId); 
 
-            var container = document.getElementById("messageBox");
-            container.innerHTML = "";
+            // Handle successful connection assignment
+            peer.on('open', function(id) {
+                document.getElementById('my-id').innerText = id;
+                document.getElementById('status').innerText = "Status: Ready to call or receive!";
+            });
 
-            for (var i = 0; i < messagesList.length; i++) {
-                var item = messagesList[i];
-                var isOwnMessage = (item.sender === currentUsername);
+            // Handle incoming audio calls
+            peer.on('call', function(incomingCall) {
+                document.getElementById('status').innerText = "Status: Incoming call! Connecting...";
+                
+                navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                    .then(function(stream) {
+                        localStream = stream;
+                        incomingCall.answer(stream); 
+                        currentCall = incomingCall;
+                        setupCallHandlers(incomingCall);
+                    })
+                    .catch(function(err) {
+                        console.error("Mic access error:", err);
+                        alert("Microphone required to answer calls. Please check site permissions!");
+                        document.getElementById('status').innerText = "Status: Mic permission error.";
+                    });
+            });
 
-                var bubble = document.createElement("div");
-                bubble.className = "msg-bubble " + (isOwnMessage ? "msg-local" : "msg-remote");
-
-                var metaElement = document.createElement("span");
-                metaElement.className = "msg-meta";
-                metaElement.innerText = item.sender + " • " + item.time;
-
-                var textNode = document.createTextNode(item.text);
-
-                bubble.appendChild(metaElement);
-                bubble.appendChild(textNode);
-                container.appendChild(bubble);
-            }
-
-            // Auto-scroll chat box down to the most recent message
-            container.scrollTop = container.scrollHeight;
+            // Global Error Management to stop app from breaking
+            peer.on('error', function(err) {
+                console.warn("PeerJS Error Caught safely:", err.type);
+                
+                // If the 4-digit ID is already in use by someone else, auto-retry with a new code
+                if (err.type === 'unavailable-id') {
+                    document.getElementById('status').innerText = "Status: Code taken, assigning new ID...";
+                    setTimeout(initializePeer, 500); 
+                } 
+                // Handle when dialing a code that doesn't exist on the server
+                else if (err.type === 'peer-not-found') {
+                    alert("The ID you called does not exist. Check the number and try again!");
+                    document.getElementById('status').innerText = "Status: Call failed. Target not found.";
+                    stopMic();
+                } 
+                else {
+                    document.getElementById('status').innerText = "Status: Error encountered. Reconnecting...";
+                    stopMic();
+                }
+            });
         }
 
-        function dispatchChatMessage() {
-            var inputElement = document.getElementById("textInput");
-            var textToSend = inputElement.value.trim();
-            if (!textToSend) return;
+        // 3. Handle outgoing dials safely
+        function startCall() {
+            const friendId = document.getElementById('friend-id-input').value.trim();
+            if (!friendId) return alert("Please enter a 4-digit Calling ID first!");
 
-            var storageKey = getRoomStorageKey();
-            var rawData = localStorage.getItem(storageKey);
-            var messagesList = [];
+            document.getElementById('status').innerText = "Status: Requesting mic access...";
 
-            if (rawData) {
-                messagesList = JSON.parse(rawData);
-            }
-
-            var timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-            // Package message object payload structures
-            var newMessageObj = {
-                sender: currentUsername,
-                text: textToSend,
-                time: timestamp
-            };
-
-            messagesList.push(newMessageObj);
-
-            // Write back to the local device storage vault
-            localStorage.setItem(storageKey, JSON.stringify(messagesList));
-
-            // Clear text entry bar
-            inputElement.value = "";
-            renderMessageDatabase();
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                .then(function(stream) {
+                    localStream = stream;
+                    document.getElementById('status').innerText = "Status: Dialing...";
+                    
+                    const call = peer.call(friendId, stream); 
+                    currentCall = call;
+                    setupCallHandlers(call);
+                })
+                .catch(function(err) {
+                    console.error("Mic access error:", err);
+                    alert("Microphone required to make calls. Check your browser permissions!");
+                    document.getElementById('status').innerText = "Status: Mic permission error.";
+                });
         }
+
+        // 4. Bind listeners to active voice streams
+        function setupCallHandlers(call) {
+            call.on('stream', function(remoteStream) {
+                document.getElementById('status').innerText = "Status: 🟢 Connected! Speaking...";
+                const remoteAudio = document.getElementById('remote-audio');
+                
+                // Keep audio fallback secure for safari/ios rendering environments
+                if ('srcObject' in remoteAudio) {
+                    remoteAudio.srcObject = remoteStream;
+                } else {
+                    remoteAudio.src = window.URL.createObjectURL(remoteStream);
+                }
+            });
+
+            call.on('close', function() {
+                document.getElementById('status').innerText = "Status: Call ended.";
+                stopMic();
+            });
+        }
+
+        // 5. Clean termination commands
+        function hangUp() {
+            if (currentCall) {
+                try { currentCall.close(); } catch(e){}
+            }
+            document.getElementById('status').innerText = "Status: Call hung up.";
+            stopMic();
+        }
+
+        function stopMic() {
+            if (localStream) {
+                try {
+                    localStream.getTracks().forEach(track => track.stop());
+                } catch(e) {}
+                localStream = null;
+            }
+        }
+
+        // Launch app initialization immediately
+        initializePeer();
     </script>
 </body>
 </html>
