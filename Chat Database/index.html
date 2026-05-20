@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Global Communication Hub</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" crossorigin="anonymous"></script>
@@ -20,97 +20,115 @@
             --text-low: #94a3b8;
         }
 
-        body {
+        /* Prevent system page scrolling entirely to keep everything pinned in view */
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-base); color: var(--text-high);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0; padding: 0; background-color: var(--bg-base); color: var(--text-high);
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            overflow: hidden; display: flex; flex-direction: column;
         }
 
         .top-bar {
-            background-color: var(--bg-surface); padding: 15px 20px; text-align: center;
-            border-bottom: 1px solid var(--border-muted); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 10;
+            background-color: var(--bg-surface); padding: 10px 15px; text-align: center;
+            border-bottom: 1px solid var(--border-muted); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            z-index: 10; flex-shrink: 0;
         }
-        .top-bar h1 { margin: 0; font-size: 22px; color: var(--clr-cyan); }
-        .top-bar p { margin: 6px 0 0 0; font-size: 14px; color: var(--text-low); }
+        .top-bar h1 { margin: 0; font-size: 18px; color: var(--clr-cyan); }
+        .top-bar p { margin: 4px 0 0 0; font-size: 12px; color: var(--text-low); }
         #my-id { 
-            font-weight: 800; color: var(--clr-rose); font-size: 18px; letter-spacing: 1.5px;
-            background: rgba(239, 68, 68, 0.1); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.2);
+            font-weight: 800; color: var(--clr-rose); font-size: 13px; letter-spacing: 1px;
+            background: rgba(239, 68, 68, 0.1); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        .workspace { display: flex; flex: 1; overflow: hidden; position: relative; }
-        .panel { flex: 1; display: flex; flex-direction: column; padding: 24px; box-sizing: border-box; overflow: hidden; }
+        /* Flexible workspace container */
+        .workspace { 
+            display: flex; flex: 1; overflow: hidden; position: relative; width: 100%;
+        }
+
+        /* Panels auto-calculate height/width dynamically based on available screen space */
+        .panel { 
+            flex: 1; display: flex; flex-direction: column; padding: 16px; 
+            box-sizing: border-box; overflow: hidden; min-height: 0; min-width: 0;
+        }
         .left-panel { border-right: 1px solid var(--border-muted); background-color: var(--bg-surface); }
         .right-panel { background-color: var(--bg-base); }
 
-        h2 { margin-top: 0; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid var(--border-muted); padding-bottom: 10px; color: #f8fafc; }
+        h2 { margin-top: 0; margin-bottom: 10px; font-size: 15px; border-bottom: 2px solid var(--border-muted); padding-bottom: 6px; color: #f8fafc; flex-shrink: 0; }
 
+        /* Log boxes scroll internally so the rest of the application stays fixed */
         .log-box {
             flex: 1; background-color: var(--bg-darken); border: 1px solid var(--border-muted);
-            border-radius: 8px; padding: 18px; overflow-y: auto; margin-bottom: 15px; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 8px; padding: 12px; overflow-y: auto; margin-bottom: 10px; 
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3); min-height: 0;
         }
-        .log-box p { margin: 8px 0; font-size: 14px; line-height: 1.5; word-break: break-word; }
+        .log-box p { margin: 6px 0; font-size: 13px; line-height: 1.4; word-break: break-word; }
 
         .msg-server { color: #f59e0b; font-style: italic; font-weight: 500; }
-        .msg-you { color: var(--clr-cyan); text-align: right; margin-left: 20%; }
-        .msg-friend { color: var(--clr-emerald); text-align: left; margin-right: 20%; }
+        .msg-you { color: var(--clr-cyan); text-align: right; margin-left: 15%; }
+        .msg-friend { color: var(--clr-emerald); text-align: left; margin-right: 15%; }
         .msg-system-err { color: var(--clr-rose); font-weight: 600; }
 
-        .controls { display: flex; gap: 12px; align-items: center; }
+        /* Self-contained controls grid */
+        .controls { 
+            display: grid; grid-template-columns: 1fr auto; gap: 8px; flex-shrink: 0; width: 100%; box-sizing: border-box;
+        }
         input {
-            flex: 1; background: var(--bg-base); border: 1px solid #475569; border-radius: 6px;
-            padding: 12px 16px; color: #ffffff; font-size: 14px; transition: all 0.2s ease;
+            grid-column: span 2; width: 100%; background: var(--bg-base); border: 1px solid #475569; border-radius: 6px;
+            padding: 10px 12px; color: #ffffff; font-size: 14px; transition: all 0.2s ease; box-sizing: border-box;
+            -webkit-appearance: none;
         }
         input:focus { outline: none; border-color: var(--clr-cyan); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
         input:disabled { background-color: var(--bg-darken); color: var(--text-low); cursor: not-allowed; border-color: var(--border-muted); }
 
         button {
-            background-color: var(--clr-cyan); color: #0f172a; border: none; border-radius: 6px;
-            padding: 12px 24px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+            width: 100%; background-color: var(--clr-cyan); color: #0f172a; border: none; border-radius: 6px;
+            padding: 10px 14px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+            -webkit-tap-highlight-color: transparent; box-sizing: border-box;
         }
-        button:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-        button:disabled { background-color: #475569 !important; color: #94a3b8 !important; cursor: not-allowed; transform: none !important; }
+        button:hover:not(:disabled) { opacity: 0.9; }
+        button:disabled { background-color: #475569 !important; color: #94a3b8 !important; cursor: not-allowed; }
         .btn-decline { background-color: var(--clr-rose); color: white; }
         .btn-action { background-color: var(--clr-emerald); color: white; }
 
-        /* Integrated Video Canvas Grid Positioning */
+        /* Dynamic fluid sizing framework for video windows */
         .video-display-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 15px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; flex-shrink: 0;
         }
         .video-container {
             position: relative; background-color: var(--bg-darken); border: 1px solid var(--border-muted);
             border-radius: 8px; aspect-ratio: 4/3; overflow: hidden; display: flex; align-items: center; justify-content: center;
+            max-height: 25vh; /* Prevents video containers from stealing entire screen on small displays */
         }
         .video-container video {
-            width: 100%; height: 100%; object-fit: cover; background: #000;
+            width: 100%; height: 100%; object-fit: cover; background: #000000;
         }
         .video-label {
-            position: absolute; bottom: 8px; left: 8px; background: rgba(15, 23, 42, 0.75);
-            padding: 2px 8px; border-radius: 4px; font-size: 11px; color: var(--text-low); font-weight: 600;
+            position: absolute; bottom: 6px; left: 6px; background: rgba(15, 23, 42, 0.8);
+            padding: 2px 6px; border-radius: 4px; font-size: 9px; color: var(--text-low); font-weight: 600;
+            pointer-events: none; z-index: 2;
         }
 
-        /* Dynamic Popups for Connection Gates */
         .incoming-alert {
             background-color: #7c2d12; border: 1px dashed #ea580c; border-radius: 8px;
-            padding: 16px; margin-bottom: 20px; display: none; align-items: center; justify-content: space-between;
+            padding: 10px; margin-bottom: 10px; display: none; align-items: center; justify-content: space-between; flex-shrink: 0;
         }
-        .incoming-alert span { color: #fdba74; font-weight: 700; font-size: 14px; }
-        .alert-btn-group { display: flex; gap: 8px; }
+        .incoming-alert span { color: #fdba74; font-weight: 700; font-size: 12px; }
+        .alert-btn-group { display: flex; gap: 6px; }
 
         #autoplay-bypass-overlay {
-            position: absolute; bottom: 20px; right: 20px; background: #f59e0b; color: #020617;
-            padding: 15px 20px; border-radius: 8px; font-weight: 700; display: none; z-index: 100; cursor: pointer;
+            position: absolute; bottom: 12px; left: 12px; right: 12px; background: #f59e0b; color: #020617;
+            padding: 12px; border-radius: 6px; font-weight: 700; font-size: 13px; text-align: center; display: none; z-index: 100; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        /* Mobile Layout Fluid Adjustments */
+        /* 📱 Seamless layout inversion engine for small/mobile viewports */
         @media (max-width: 768px) {
-            body { overflow-y: auto; height: auto; }
-            .workspace { flex-direction: column; overflow: visible; height: auto; }
-            .panel { flex: none; width: 100%; min-height: 450px; padding: 16px; }
+            .workspace { flex-direction: column; }
+            .panel { flex: 1; padding: 12px; }
             .left-panel { border-right: none; border-bottom: 1px solid var(--border-muted); }
-            .video-display-grid { grid-template-columns: 1fr; }
-            .controls { flex-wrap: wrap; }
-            input, button { width: 100%; }
-            #chat-target-input { max-width: 100% !important; }
+            .video-container { max-height: 18vh; } /* Tighter restrictions to ensure log space on phones */
+            h2 { margin-bottom: 6px; padding-bottom: 4px; font-size: 14px; }
+            .log-box { margin-bottom: 6px; }
         }
     </style>
 </head>
@@ -118,16 +136,15 @@
 
     <div class="top-bar">
         <h1>Global Communication Hub</h1>
-        <p>Your Secure ID Network Gateway: <span id="my-id">Generating...</span></p>
+        <p>Network Gateway: <span id="my-id">Generating...</span></p>
     </div>
 
     <div class="workspace">
-        
         <div class="panel left-panel">
             <h2>💬 Secure Chat Feed</h2>
             
             <div id="incoming-chat-alert" class="incoming-alert">
-                <span id="chat-alert-text">---- is trying to enter chat with you</span>
+                <span id="chat-alert-text">Incoming request</span>
                 <div class="alert-btn-group">
                     <button id="chat-accept-btn" class="btn-action">ACCEPT</button>
                     <button id="chat-decline-btn" class="btn-decline">DECLINE</button>
@@ -138,10 +155,10 @@
                 <p class="msg-server">System node active. Waiting for secure inbound/outbound tunnel requests...</p>
             </div>
             <div class="controls">
-                <input type="text" id="chat-target-input" placeholder="Enter 4-digit Friend ID">
-                <button id="chat-leave-btn" class="btn-decline" style="display: none;">Leave Chat</button>
+                <input type="text" id="chat-target-input" placeholder="Enter 4-digit Friend ID" inputmode="numeric" pattern="[0-9]*">
+                <button id="chat-leave-btn" class="btn-decline" style="display: none;">Leave</button>
                 <input type="text" id="chat-message-input" placeholder="Type secure message string..." disabled>
-                <button id="chat-send-btn" disabled>Send Msg</button>
+                <button id="chat-send-btn" disabled>Send</button>
             </div>
         </div>
 
@@ -149,7 +166,7 @@
             <h2>🎥 Realtime Media Matrix</h2>
             
             <div id="incoming-call-alert" class="incoming-alert">
-                <span id="call-alert-text">⚠️ Inbound Secure Line Call Requesting Connection...</span>
+                <span id="call-alert-text">⚠️ Inbound Call...</span>
                 <div class="alert-btn-group">
                     <button id="call-accept-btn" class="btn-action">Accept</button>
                     <button id="call-decline-btn" class="btn-decline">Decline</button>
@@ -158,12 +175,12 @@
 
             <div class="video-display-grid">
                 <div class="video-container">
-                    <video id="local-video-view" muted playsinline></video>
-                    <div class="video-label">LOCAL CAPTURE</div>
+                    <video id="local-video-view" autoplay muted playsinline webkit-playsinline></video>
+                    <div class="video-label">LOCAL</div>
                 </div>
                 <div class="video-container">
-                    <video id="remote-video-view" playsinline></video>
-                    <div class="video-label">REMOTE CONNECTION FEED</div>
+                    <video id="remote-video-view" autoplay playsinline webkit-playsinline></video>
+                    <div class="video-label">REMOTE</div>
                 </div>
             </div>
 
@@ -171,17 +188,16 @@
                 <p class="msg-server">Media matrix loop online. Ready for secure audio transmissions or camera face links...</p>
             </div>
             <div class="controls">
-                <input type="text" id="voice-target-input" placeholder="Enter 4-digit Remote Target ID">
-                <button id="voice-dial-btn" class="btn-action">Dial Voice Line</button>
+                <input type="text" id="voice-target-input" placeholder="Enter 4-digit Remote ID" inputmode="numeric" pattern="[0-9]*">
+                <button id="voice-dial-btn" class="btn-action">Voice Call</button>
                 <button id="video-dial-btn" style="background-color: #a855f7; color: white;">Face Call</button>
-                <button id="voice-hangup-btn" class="btn-decline" style="display:none;">Disconnect Line</button>
+                <button id="voice-hangup-btn" class="btn-decline" style="display:none; grid-column: span 2;">Disconnect Line</button>
             </div>
         </div>
 
         <div id="autoplay-bypass-overlay">
-            ⚠️ Browser blocked media autoplay loop. Click anywhere here to force stream connection.
+            ⚠️ Tap here to activate audio/video streams.
         </div>
-
     </div>
 
     <script>
@@ -234,23 +250,21 @@
             
             peer.on('open', (id) => {
                 myIdDisplay.innerText = id;
-                logMsg(chatLog, `[Network Log]: Successfully bridged link server. Global 4-digit node ID: ${id}`, "msg-server");
+                logMsg(chatLog, `[Network Log]: Server bridged. Global ID: ${id}`, "msg-server");
             });
             
             peer.on('error', (err) => {
                 if (err.type === 'unavailable-id') {
-                    logMsg(chatLog, `[ID Collision]: ID ${customFourDigitId} taken. Retrying...`, "msg-system-err");
+                    logMsg(chatLog, `[ID Collision]: Retrying...`, "msg-system-err");
                     setTimeout(initNetworkNode, 1000); return;
                 }
-                logMsg(chatLog, `[Critical Error]: ${err.type} - Protocol halted.`, "msg-system-err");
+                logMsg(chatLog, `[Error]: ${err.type}`, "msg-system-err");
             });
 
-            // Handshake Gateway: Incoming Text Messaging Port
             peer.on('connection', (conn) => {
                 if (dataConn || pendingChatConn) { conn.close(); return; }
-                
                 pendingChatConn = conn;
-                chatAlertText.innerText = `(${pendingChatConn.peer}) is trying to enter chat with you`;
+                chatAlertText.innerText = `(${pendingChatConn.peer}) wants to chat`;
                 incomingChatAlert.style.display = "flex";
 
                 chatAcceptBtn.onclick = () => {
@@ -260,7 +274,7 @@
                     dataConn.send({ systemSignal: "ACCEPT" }); 
                     setupDataChannelListeners();
                     chatTargetInput.value = dataConn.peer;
-                    logMsg(chatLog, `[Tunnel Established]: Secure session live with node: ${dataConn.peer}`, "msg-server");
+                    logMsg(chatLog, `[Tunnel Established]: Connected to ${dataConn.peer}`, "msg-server");
                 };
 
                 chatDeclineBtn.onclick = () => {
@@ -269,68 +283,55 @@
                     const targetRef = pendingChatConn.peer;
                     setTimeout(() => {
                         if(pendingChatConn && pendingChatConn.peer === targetRef) {
-                            pendingChatConn.close();
-                            pendingChatConn = null;
+                            pendingChatConn.close(); pendingChatConn = null;
                         }
                     }, 500);
                 };
             });
 
-            // Handshake Gateway: Incoming Voice/Video Media Port
             peer.on('call', (incomingCall) => {
-                // Determine request type based on metadata array signaling
                 const isIncomingVideo = !!(incomingCall.options && incomingCall.options.metadata && incomingCall.options.metadata.videoMode);
                 callIsVideoMode = isIncomingVideo;
 
-                if (isIncomingVideo) {
-                    callAlertText.innerText = `⚠️ Inbound Secure FACE CALL Requesting Connection...`;
-                    logMsg(voiceLog, `[Inbound Signal]: Camera video line handshake knock detected...`, "msg-server");
-                } else {
-                    callAlertText.innerText = `⚠️ Inbound Secure Line Call Requesting Connection...`;
-                    logMsg(voiceLog, `[Inbound Signal]: Audio line ping received...`, "msg-server");
-                }
-                
+                callAlertText.innerText = isIncomingVideo ? `⚠️ Inbound FACE CALL Request...` : `⚠️ Inbound VOICE CALL Request...`;
+                logMsg(voiceLog, `[Inbound Signal]: Line incoming...`, "msg-server");
                 incomingVoiceAlert.style.display = "flex";
                 
                 callAcceptBtn.onclick = async () => {
                     incomingVoiceAlert.style.display = "none";
                     try {
-                        const mediaConstraints = { audio: true, video: isIncomingVideo };
+                        const mediaConstraints = { audio: true, video: isIncomingVideo ? { facingMode: "user" } : false };
                         localMediaStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
                         
                         if (isIncomingVideo) {
                             localVideoView.srcObject = localMediaStream;
-                            localVideoView.play().catch(e => console.warn(e));
                         }
 
                         activeAudioCall = incomingCall; 
                         activeAudioCall.answer(localMediaStream); 
                         setupAudioStreamListeners(false);
                     } catch (err) {
-                        logMsg(voiceLog, `[Media Refused]: Check site camera/mic configuration permissions.`, "msg-system-err"); 
+                        logMsg(voiceLog, `[Media Refused]: Check phone permissions.`, "msg-system-err"); 
                         incomingCall.close();
                     }
                 };
                 
                 callDeclineBtn.onclick = () => {
-                    incomingVoiceAlert.style.display = "none";
-                    incomingCall.close(); 
+                    incomingVoiceAlert.style.display = "none"; incomingCall.close(); 
                 };
             });
         }
 
         function setupDataChannelListeners() {
-            chatMessageInput.disabled = false; 
-            chatSendBtn.disabled = false; 
-            chatTargetInput.disabled = true;
-            chatLeaveBtn.style.display = "inline-block";
+            chatMessageInput.disabled = false; chatSendBtn.disabled = false; 
+            chatTargetInput.disabled = true; chatLeaveBtn.style.display = "inline-block";
 
             dataConn.on('data', (data) => {
                 if (data && data.systemSignal) {
                     if (data.systemSignal === "ACCEPT") {
-                        logMsg(chatLog, `[System]: Chat access granted by remote participant. Connection live.`, "msg-server");
+                        logMsg(chatLog, `[System]: Access granted. Tunnel live.`, "msg-server");
                     } else if (data.systemSignal === "DECLINE") {
-                        logMsg(chatLog, `Chat access with (${dataConn.peer}) Denied`, "msg-system-err");
+                        logMsg(chatLog, `Chat access denied.`, "msg-system-err");
                         cleanupDataChannel();
                     }
                     return;
@@ -339,52 +340,43 @@
             });
 
             dataConn.on('close', () => {
-                logMsg(chatLog, `[Tunnel Dropped]: Remote participant disconnected.`, "msg-system-err");
+                logMsg(chatLog, `[Tunnel Dropped]: Disconnected.`, "msg-system-err");
                 cleanupDataChannel();
             });
         }
 
         function cleanupDataChannel() {
             if (dataConn) dataConn.close();
-            dataConn = null; 
-            chatMessageInput.disabled = true; 
-            chatMessageInput.value = "";
-            chatSendBtn.disabled = true;
-            chatLeaveBtn.style.display = "none";
-            chatTargetInput.disabled = false; 
-            chatTargetInput.value = "";
+            dataConn = null; chatMessageInput.disabled = true; chatMessageInput.value = "";
+            chatSendBtn.disabled = true; chatLeaveBtn.style.display = "none";
+            chatTargetInput.disabled = false; chatTargetInput.value = "";
         }
 
         function setupAudioStreamListeners(isOutgoingCall = false) {
-            voiceDialBtn.style.display = "none"; 
-            videoDialBtn.style.display = "none";
-            voiceHangupBtn.style.display = "inline-block"; 
-            voiceTargetInput.disabled = true;
-            
+            voiceDialBtn.style.display = "none"; videoDialBtn.style.display = "none";
+            voiceHangupBtn.style.display = "inline-block"; voiceTargetInput.disabled = true;
             let streamDetected = false;
 
             activeAudioCall.on('stream', (remoteStream) => {
                 streamDetected = true;
-                
                 remoteVideoView.srcObject = remoteStream;
-                remoteVideoView.play().catch(error => {
-                    autoplayOverlay.style.display = "block";
-                    autoplayOverlay.onclick = () => { 
-                        remoteVideoView.play().catch(e => console.error(e)); 
-                        autoplayOverlay.style.display = "none"; 
-                    };
-                });
                 
-                const labelType = callIsVideoMode ? "Face Call Video" : "Audio Voice";
-                logMsg(voiceLog, `[Success]: Full-duplex realtime ${labelType} line live.`, "msg-server");
+                const playPromise = remoteVideoView.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        autoplayOverlay.style.display = "block";
+                        autoplayOverlay.onclick = () => { 
+                            remoteVideoView.play().catch(e => console.error(e)); 
+                            localVideoView.play().catch(e => console.error(e));
+                            autoplayOverlay.style.display = "none"; 
+                        };
+                    });
+                }
+                logMsg(voiceLog, `[Success]: Line live.`, "msg-server");
             });
             
             activeAudioCall.on('close', () => {
-                if (isOutgoingCall && !streamDetected) {
-                    logMsg(voiceLog, `Call Declined`, "msg-system-err");
-                } else {
-                    logMsg(voiceLog, `[Line Status]: Connection ended cleanly.`, "msg-system-err");
-                }
+                logMsg(voiceLog, (isOutgoingCall && !streamDetected) ? `Call Declined` : `[Line Status]: Disconnected.`, "msg-system-err");
                 cleanupAudioCall(); 
             });
         }
@@ -394,21 +386,13 @@
             if (localMediaStream) {
                 localMediaStream.getTracks().forEach(track => track.stop());
             }
-            
-            // Unbind memory allocations from canvas render layers
-            localVideoView.srcObject = null;
-            remoteVideoView.srcObject = null;
-
-            activeAudioCall = null; 
-            localMediaStream = null; 
-            
-            voiceDialBtn.style.display = "inline-block"; 
-            videoDialBtn.style.display = "inline-block";
-            voiceHangupBtn.style.display = "none"; 
-            voiceTargetInput.disabled = false;
+            localVideoView.srcObject = null; remoteVideoView.srcObject = null;
+            activeAudioCall = null; localMediaStream = null; 
+            voiceDialBtn.style.display = "inline-block"; videoDialBtn.style.display = "inline-block";
+            voiceHangupBtn.style.display = "none"; voiceTargetInput.disabled = false;
+            autoplayOverlay.style.display = "none";
         }
 
-        // Action Bindings
         chatSendBtn.addEventListener('click', () => {
             const msg = chatMessageInput.value.trim(); if (!msg || !dataConn) return;
             dataConn.send(msg); logMsg(chatLog, `You: ${msg}`, "msg-you"); chatMessageInput.value = "";
@@ -417,49 +401,40 @@
         chatTargetInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const targetId = chatTargetInput.value.trim(); if (!targetId || targetId === peer.id) return;
-                logMsg(chatLog, `[Tunnel Outbound]: Requesting secure entry verification knock from target: ${targetId}...`, "msg-server");
-                dataConn = peer.connect(targetId); 
-                setupDataChannelListeners();
+                logMsg(chatLog, `[Tunnel Outbound]: Knocking on node ${targetId}...`, "msg-server");
+                dataConn = peer.connect(targetId); setupDataChannelListeners();
             }
         });
 
         chatLeaveBtn.addEventListener('click', () => {
-            if (dataConn) {
-                logMsg(chatLog, `[System]: You left the chat session.`, "msg-system-err");
-                cleanupDataChannel();
-            }
+            if (dataConn) { logMsg(chatLog, `[System]: You left the session.`, "msg-system-err"); cleanupDataChannel(); }
         });
 
-        // Outbound Initialization Routing: Audio Line Call
         voiceDialBtn.addEventListener('click', async () => {
             const targetId = voiceTargetInput.value.trim(); if (!targetId || targetId === peer.id) return;
             callIsVideoMode = false;
-            logMsg(voiceLog, `[Outbound Dialing]: Connecting voice line to: ${targetId}...`, "msg-server");
+            logMsg(voiceLog, `[Dialing]: Outbound audio line to: ${targetId}...`, "msg-server");
             try {
                 localMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 activeAudioCall = peer.call(targetId, localMediaStream, { metadata: { videoMode: false } }); 
                 setupAudioStreamListeners(true);
-            } catch (err) { logMsg(voiceLog, `[Media Blocked]: Mic permission denied.`, "msg-system-err"); }
+            } catch (err) { logMsg(voiceLog, `[Media Blocked]: Check microphone rights.`, "msg-system-err"); }
         });
 
-        // Outbound Initialization Routing: Face Call (Video Line)
         videoDialBtn.addEventListener('click', async () => {
             const targetId = voiceTargetInput.value.trim(); if (!targetId || targetId === peer.id) return;
             callIsVideoMode = true;
-            logMsg(voiceLog, `[Outbound Face Call]: Initializing camera and connection matrix to: ${targetId}...`, "msg-server");
+            logMsg(voiceLog, `[Face Call]: Starting camera link to: ${targetId}...`, "msg-server");
             try {
-                localMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                localMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: "user" } });
                 localVideoView.srcObject = localMediaStream;
-                localVideoView.play().catch(e => console.warn(e));
-
                 activeAudioCall = peer.call(targetId, localMediaStream, { metadata: { videoMode: true } }); 
                 setupAudioStreamListeners(true);
-            } catch (err) { logMsg(voiceLog, `[Media Blocked]: Camera or Microphone hardware authorization denied.`, "msg-system-err"); }
+            } catch (err) { logMsg(voiceLog, `[Media Blocked]: Hardware access denied.`, "msg-system-err"); }
         });
 
         voiceHangupBtn.addEventListener('click', () => { cleanupAudioCall(); });
-        
         initNetworkNode();
     </script>
 </body>
-</html>
+</html>         
