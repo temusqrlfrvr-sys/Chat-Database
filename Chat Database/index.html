@@ -72,6 +72,22 @@
         .btn-decline { background-color: var(--clr-rose); color: white; }
         .btn-action { background-color: var(--clr-emerald); color: white; }
 
+        /* Integrated Video Canvas Grid Positioning */
+        .video-display-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 15px;
+        }
+        .video-container {
+            position: relative; background-color: var(--bg-darken); border: 1px solid var(--border-muted);
+            border-radius: 8px; aspect-ratio: 4/3; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
+        .video-container video {
+            width: 100%; height: 100%; object-fit: cover; background: #000;
+        }
+        .video-label {
+            position: absolute; bottom: 8px; left: 8px; background: rgba(15, 23, 42, 0.75);
+            padding: 2px 8px; border-radius: 4px; font-size: 11px; color: var(--text-low); font-weight: 600;
+        }
+
         /* Dynamic Popups for Connection Gates */
         .incoming-alert {
             background-color: #7c2d12; border: 1px dashed #ea580c; border-radius: 8px;
@@ -91,6 +107,7 @@
             .workspace { flex-direction: column; overflow: visible; height: auto; }
             .panel { flex: none; width: 100%; min-height: 450px; padding: 16px; }
             .left-panel { border-right: none; border-bottom: 1px solid var(--border-muted); }
+            .video-display-grid { grid-template-columns: 1fr; }
             .controls { flex-wrap: wrap; }
             input, button { width: 100%; }
             #chat-target-input { max-width: 100% !important; }
@@ -122,30 +139,42 @@
             </div>
             <div class="controls">
                 <input type="text" id="chat-target-input" placeholder="Enter 4-digit Friend ID">
+                <button id="chat-leave-btn" class="btn-decline" style="display: none;">Leave Chat</button>
                 <input type="text" id="chat-message-input" placeholder="Type secure message string..." disabled>
                 <button id="chat-send-btn" disabled>Send Msg</button>
-                <button id="chat-leave-btn" class="btn-decline" style="display: none;">Leave Chat</button>
             </div>
         </div>
 
         <div class="panel right-panel">
-            <h2>🔊 Realtime Voice Core</h2>
+            <h2>🎥 Realtime Media Matrix</h2>
             
             <div id="incoming-call-alert" class="incoming-alert">
-                <span>⚠️ Inbound Secure Line Call Requesting Connection...</span>
+                <span id="call-alert-text">⚠️ Inbound Secure Line Call Requesting Connection...</span>
                 <div class="alert-btn-group">
                     <button id="call-accept-btn" class="btn-action">Accept</button>
                     <button id="call-decline-btn" class="btn-decline">Decline</button>
                 </div>
             </div>
 
+            <div class="video-display-grid">
+                <div class="video-container">
+                    <video id="local-video-view" muted playsinline></video>
+                    <div class="video-label">LOCAL CAPTURE</div>
+                </div>
+                <div class="video-container">
+                    <video id="remote-video-view" playsinline></video>
+                    <div class="video-label">REMOTE CONNECTION FEED</div>
+                </div>
+            </div>
+
             <div id="voice-log" class="log-box">
-                <p class="msg-server">Audio loop module initialized. Standby for voice stream matrix links...</p>
+                <p class="msg-server">Media matrix loop online. Ready for secure audio transmissions or camera face links...</p>
             </div>
             <div class="controls">
-                <input type="text" id="voice-target-input" placeholder="Enter 4-digit Voice ID">
+                <input type="text" id="voice-target-input" placeholder="Enter 4-digit Remote Target ID">
                 <button id="voice-dial-btn" class="btn-action">Dial Voice Line</button>
-                <button id="voice-hangup-btn" class="btn-decline" style="display:none;">Hang Up</button>
+                <button id="video-dial-btn" style="background-color: #a855f7; color: white;">Face Call</button>
+                <button id="voice-hangup-btn" class="btn-decline" style="display:none;">Disconnect Line</button>
             </div>
         </div>
 
@@ -159,8 +188,9 @@
         let peer; 
         let dataConn = null; 
         let activeAudioCall = null; 
-        let localAudioStream = null;
+        let localMediaStream = null;
         let pendingChatConn = null; 
+        let callIsVideoMode = false;
 
         const myIdDisplay = document.getElementById('my-id');
         const chatLog = document.getElementById('chat-log'); 
@@ -178,11 +208,16 @@
 
         const voiceTargetInput = document.getElementById('voice-target-input');
         const voiceDialBtn = document.getElementById('voice-dial-btn'); 
+        const videoDialBtn = document.getElementById('video-dial-btn');
         const voiceHangupBtn = document.getElementById('voice-hangup-btn');
         const incomingVoiceAlert = document.getElementById('incoming-call-alert');
+        const callAlertText = document.getElementById('call-alert-text');
         const callAcceptBtn = document.getElementById('call-accept-btn'); 
         const callDeclineBtn = document.getElementById('call-decline-btn');
         const autoplayOverlay = document.getElementById('autoplay-bypass-overlay');
+
+        const localVideoView = document.getElementById('local-video-view');
+        const remoteVideoView = document.getElementById('remote-video-view');
 
         function logMsg(targetBox, text, className = "") {
             const p = document.createElement('p'); p.innerText = text; if(className) p.className = className;
@@ -241,20 +276,38 @@
                 };
             });
 
-            // Handshake Gateway: Incoming Voice Audio Port
+            // Handshake Gateway: Incoming Voice/Video Media Port
             peer.on('call', (incomingCall) => {
-                logMsg(voiceLog, `[Inbound Signal]: Line ping received...`, "msg-server");
+                // Determine request type based on metadata array signaling
+                const isIncomingVideo = !!(incomingCall.options && incomingCall.options.metadata && incomingCall.options.metadata.videoMode);
+                callIsVideoMode = isIncomingVideo;
+
+                if (isIncomingVideo) {
+                    callAlertText.innerText = `⚠️ Inbound Secure FACE CALL Requesting Connection...`;
+                    logMsg(voiceLog, `[Inbound Signal]: Camera video line handshake knock detected...`, "msg-server");
+                } else {
+                    callAlertText.innerText = `⚠️ Inbound Secure Line Call Requesting Connection...`;
+                    logMsg(voiceLog, `[Inbound Signal]: Audio line ping received...`, "msg-server");
+                }
+                
                 incomingVoiceAlert.style.display = "flex";
                 
                 callAcceptBtn.onclick = async () => {
                     incomingVoiceAlert.style.display = "none";
                     try {
-                        localAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                        const mediaConstraints = { audio: true, video: isIncomingVideo };
+                        localMediaStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+                        
+                        if (isIncomingVideo) {
+                            localVideoView.srcObject = localMediaStream;
+                            localVideoView.play().catch(e => console.warn(e));
+                        }
+
                         activeAudioCall = incomingCall; 
-                        activeAudioCall.answer(localAudioStream); 
+                        activeAudioCall.answer(localMediaStream); 
                         setupAudioStreamListeners(false);
                     } catch (err) {
-                        logMsg(voiceLog, `[Media Refused]: Check site mic permissions.`, "msg-system-err"); 
+                        logMsg(voiceLog, `[Media Refused]: Check site camera/mic configuration permissions.`, "msg-system-err"); 
                         incomingCall.close();
                     }
                 };
@@ -270,7 +323,7 @@
             chatMessageInput.disabled = false; 
             chatSendBtn.disabled = false; 
             chatTargetInput.disabled = true;
-            chatLeaveBtn.style.display = "inline-block"; // Show leave button when session is active
+            chatLeaveBtn.style.display = "inline-block";
 
             dataConn.on('data', (data) => {
                 if (data && data.systemSignal) {
@@ -297,13 +350,14 @@
             chatMessageInput.disabled = true; 
             chatMessageInput.value = "";
             chatSendBtn.disabled = true;
-            chatLeaveBtn.style.display = "none"; // Hide leave button when session ends
+            chatLeaveBtn.style.display = "none";
             chatTargetInput.disabled = false; 
             chatTargetInput.value = "";
         }
 
         function setupAudioStreamListeners(isOutgoingCall = false) {
             voiceDialBtn.style.display = "none"; 
+            videoDialBtn.style.display = "none";
             voiceHangupBtn.style.display = "inline-block"; 
             voiceTargetInput.disabled = true;
             
@@ -311,15 +365,18 @@
 
             activeAudioCall.on('stream', (remoteStream) => {
                 streamDetected = true;
-                const oldAudio = document.getElementById('remote-audio-node'); if(oldAudio) oldAudio.remove();
-                const audio = document.createElement('audio'); audio.id = 'remote-audio-node';
-                audio.srcObject = remoteStream; audio.autoplay = true; document.body.appendChild(audio);
                 
-                audio.play().catch(error => {
+                remoteVideoView.srcObject = remoteStream;
+                remoteVideoView.play().catch(error => {
                     autoplayOverlay.style.display = "block";
-                    autoplayOverlay.onclick = () => { audio.play(); autoplayOverlay.style.display = "none"; };
+                    autoplayOverlay.onclick = () => { 
+                        remoteVideoView.play().catch(e => console.error(e)); 
+                        autoplayOverlay.style.display = "none"; 
+                    };
                 });
-                logMsg(voiceLog, `[Success]: Full-duplex realtime audio stream live.`, "msg-server");
+                
+                const labelType = callIsVideoMode ? "Face Call Video" : "Audio Voice";
+                logMsg(voiceLog, `[Success]: Full-duplex realtime ${labelType} line live.`, "msg-server");
             });
             
             activeAudioCall.on('close', () => {
@@ -334,10 +391,21 @@
 
         function cleanupAudioCall() {
             if (activeAudioCall) activeAudioCall.close();
-            if (localAudioStream) localAudioStream.getTracks().forEach(track => track.stop());
-            const audioNode = document.getElementById('remote-audio-node'); if (audioNode) audioNode.remove();
-            activeAudioCall = null; localAudioStream = null; voiceDialBtn.style.display = "inline-block";
-            voiceHangupBtn.style.display = "none"; voiceTargetInput.disabled = false;
+            if (localMediaStream) {
+                localMediaStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Unbind memory allocations from canvas render layers
+            localVideoView.srcObject = null;
+            remoteVideoView.srcObject = null;
+
+            activeAudioCall = null; 
+            localMediaStream = null; 
+            
+            voiceDialBtn.style.display = "inline-block"; 
+            videoDialBtn.style.display = "inline-block";
+            voiceHangupBtn.style.display = "none"; 
+            voiceTargetInput.disabled = false;
         }
 
         // Action Bindings
@@ -349,14 +417,12 @@
         chatTargetInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const targetId = chatTargetInput.value.trim(); if (!targetId || targetId === peer.id) return;
-                
                 logMsg(chatLog, `[Tunnel Outbound]: Requesting secure entry verification knock from target: ${targetId}...`, "msg-server");
                 dataConn = peer.connect(targetId); 
                 setupDataChannelListeners();
             }
         });
 
-        // Trigger action when manually opting to drop active text line
         chatLeaveBtn.addEventListener('click', () => {
             if (dataConn) {
                 logMsg(chatLog, `[System]: You left the chat session.`, "msg-system-err");
@@ -364,14 +430,31 @@
             }
         });
 
+        // Outbound Initialization Routing: Audio Line Call
         voiceDialBtn.addEventListener('click', async () => {
             const targetId = voiceTargetInput.value.trim(); if (!targetId || targetId === peer.id) return;
-            logMsg(voiceLog, `[Outbound Dialing]: Connecting to: ${targetId}...`, "msg-server");
+            callIsVideoMode = false;
+            logMsg(voiceLog, `[Outbound Dialing]: Connecting voice line to: ${targetId}...`, "msg-server");
             try {
-                localAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                activeAudioCall = peer.call(targetId, localAudioStream); 
+                localMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                activeAudioCall = peer.call(targetId, localMediaStream, { metadata: { videoMode: false } }); 
                 setupAudioStreamListeners(true);
             } catch (err) { logMsg(voiceLog, `[Media Blocked]: Mic permission denied.`, "msg-system-err"); }
+        });
+
+        // Outbound Initialization Routing: Face Call (Video Line)
+        videoDialBtn.addEventListener('click', async () => {
+            const targetId = voiceTargetInput.value.trim(); if (!targetId || targetId === peer.id) return;
+            callIsVideoMode = true;
+            logMsg(voiceLog, `[Outbound Face Call]: Initializing camera and connection matrix to: ${targetId}...`, "msg-server");
+            try {
+                localMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                localVideoView.srcObject = localMediaStream;
+                localVideoView.play().catch(e => console.warn(e));
+
+                activeAudioCall = peer.call(targetId, localMediaStream, { metadata: { videoMode: true } }); 
+                setupAudioStreamListeners(true);
+            } catch (err) { logMsg(voiceLog, `[Media Blocked]: Camera or Microphone hardware authorization denied.`, "msg-system-err"); }
         });
 
         voiceHangupBtn.addEventListener('click', () => { cleanupAudioCall(); });
