@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CallAndroid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght=400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-container {
+            background: #1e293b;
+            width: 100%;
+            max-width: 400px;
+            height: 650px;
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .header {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .app-title {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .local-id {
+            background: #0f172a;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        .screen-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            margin-bottom: 40px;
+        }
+
+        .avatar-circle {
+            width: 120px;
+            height: 120px;
+            background: #334155;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-circle.active {
+            background: #22c55e;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .avatar-circle.incoming {
+            background: #38bdf8;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .avatar-circle.ended {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 5px;
+        }
+
+        .dialer-input-box {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 12px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            width: 100%;
+        }
+
+        .btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            transition: transform 0.1s ease, background 0.2s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.9);
+        }
+
+        .btn-call {
+            background: #22c55e;
+        }
+
+        .btn-call:hover {
+            background: #16a34a;
+        }
+
+        .btn-hangup {
+            background: #ef4444;
+            display: none; 
+        }
+
+        .btn-hangup:hover {
+            background: #dc2626;
+        }
+
+        .btn-accept {
+            background: #22c55e;
+            display: none;
+        }
+
+        .btn-accept:hover {
+            background: #16a34a;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container">
+        <div class="header">
+            <div class="app-title">CallAndroid</div>
+            <div class="local-id" id="display-id">Initializing system...</div>
+        </div>
+
+        <div class="screen-content">
+            <div class="avatar-circle" id="avatar"><i class="fa-solid fa-user"></i></div>
+            <div class="status-text" id="status">Ready</div>
+        </div>
+
+        <div>
+            <input type="text" class="dialer-input-box" id="remote-id-input" placeholder="Enter Device ID to Call">
+            
+            <div class="controls">
+                <button class="btn btn-call" id="call-btn" onclick="startCall()">
+                    <i class="fa-solid fa-phone"></i>
+                </button>
+                
+                <button class="btn btn-accept" id="accept-btn" onclick="acceptCall()">
+                    <i class="fa-solid fa-phone"></i>
+                </button>
+                
+                <button class="btn btn-hangup" id="hangup-btn" onclick="endCall()">
+                    <i class="fa-solid fa-phone-slash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script>
+        let peer;
+        let currentCall = null;
+        let dataConnection = null; 
+        let pendingCallEvent = null; 
+        let localStream = null;
+        let audioAudioLoop = null;
+        let callTimeoutTimer = null;
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // 1. Professional INCOMING Ringtone System (Loops)
+        function startIncomingRingtone() {
+            stopAudioSounds();
+            function playInstance() {
+                let osc1 = audioCtx.createOscillator();
+                let osc2 = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc1.type = 'sine'; osc1.frequency.setValueAtTime(440, audioCtx.currentTime); 
+                osc2.type = 'sine'; osc2.frequency.setValueAtTime(480, audioCtx.currentTime); 
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                osc1.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+                osc1.start(); osc2.start();
+                setTimeout(() => { try { osc1.stop(); osc2.stop(); } catch(e){} }, 1800);
+            }
+            playInstance();
+            audioAudioLoop = setInterval(playInstance, 3000);
+        }
+
+        // 2. Professional OUTGOING Dial Sound System (Loops while calling someone)
+        function startOutgoingDialSound() {
+            stopAudioSounds();
+            function playInstance() {
+                let osc1 = audioCtx.createOscillator();
+                let osc2 = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                // Standard US Ringback tones (440Hz + 480Hz audible click)
+                osc1.type = 'sine'; osc1.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc2.type = 'sine'; osc2.frequency.setValueAtTime(480, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                osc1.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+                osc1.start(); osc2.start();
+                setTimeout(() => { try { osc1.stop(); osc2.stop(); } catch(e){} }, 1000); // 1-second ring length
+            }
+            playInstance();
+            audioAudioLoop = setInterval(playInstance, 3000); // Repeat cadence cycle
+        }
+
+        function stopAudioSounds() {
+            if (audioAudioLoop) {
+                clearInterval(audioAudioLoop);
+                audioAudioLoop = null;
+            }
+        }
+
+        // Initialize PeerJS Connections
+        function initPeer() {
+            const shortId = Math.floor(1000 + Math.random() * 9000).toString();
+            peer = new Peer(shortId);
+
+            peer.on('open', (id) => {
+                document.getElementById('display-id').innerText = "Device ID: " + id;
+            });
+
+            peer.on('connection', (conn) => {
+                dataConnection = conn;
+                setupDataListener(conn);
+            });
+
+            // Handle Incoming Call Event
+            peer.on('call', (call) => {
+                pendingCallEvent = call;
+                startIncomingRingtone();
+                
+                document.getElementById('status').innerText = "Incoming Call...";
+                document.getElementById('avatar').className = "avatar-circle incoming";
+                document.getElementById('remote-id-input').style.display = 'none';
+                document.getElementById('call-btn').style.display = 'none';
+                document.getElementById('accept-btn').style.display = 'flex';
+                document.getElementById('hangup-btn').style.display = 'flex';
+
+                // 10-Second Auto-Timeout if receiver doesn't pick up
+                callTimeoutTimer = setTimeout(() => {
+                    if (pendingCallEvent) {
+                        endCallWithStatus("No Answer");
+                    }
+                }, 10 * 1000);
+            });
+        }
+
+        function setupDataListener(conn) {
+            conn.on('data', (data) => {
+                if (data === "HANGUP") {
+                    triggerCallEndedState("Call Ended");
+                } else if (data === "TIMEOUT_REJECT") {
+                    triggerCallEndedState("No Answer");
+                }
+            });
+        }
+
+        // Start Outbound Phone Call
+        function startCall() {
+            const remoteId = document.getElementById('remote-id-input').value.trim();
+            if (!remoteId) {
+                alert("Please type a Device ID to connect.");
+                return;
+            }
+
+            document.getElementById('status').innerText = "Calling...";
+            document.getElementById('hangup-btn').style.display = 'flex';
+            document.getElementById('call-btn').style.display = 'none';
+            document.getElementById('remote-id-input').style.display = 'none';
+            
+            startOutgoingDialSound();
+
+            dataConnection = peer.connect(remoteId);
+            setupDataListener(dataConnection);
+
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                .then((stream) => {
+                    localStream = stream;
+                    const call = peer.call(remoteId, stream);
+                    handleActiveCall(call);
+
+                    // 10-Second Auto-Timeout on caller side if answer takes too long
+                    callTimeoutTimer = setTimeout(() => {
+                        if (currentCall && document.getElementById('status').innerText === "Calling...") {
+                            if (dataConnection && dataConnection.open) {
+                                dataConnection.send("TIMEOUT_REJECT");
+                            }
+                            setTimeout(() => {
+                                endCallWithStatus("No Answer");
+                            }, 100);
+                        }
+                    }, 10 * 1000);
+
+                }).catch(err => {
+                    alert("Microphone access denied: " + err);
+                    resetToReadyState();
+                });
+        }
+
+        // User hits the Green Accept button
+        function acceptCall() {
+            clearTimeout(callTimeoutTimer);
+            stopAudioSounds();
+            if (pendingCallEvent) {
+                dataConnection = peer.connect(pendingCallEvent.peer);
+                setupDataListener(dataConnection);
+
+                navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                    .then((stream) => {
+                        localStream = stream;
+                        pendingCallEvent.answer(stream);
+                        handleActiveCall(pendingCallEvent);
+                        pendingCallEvent = null;
+                    }).catch(err => {
+                        alert("Microphone access denied: " + err);
+                        endCall();
+                    });
+            }
+        }
+
+        // Handle Active Connected Call Session
+        function handleActiveCall(call) {
+            currentCall = call;
+
+            // If it connects before 10 seconds, clear the dialing sound and timeout clocks
+            call.on('stream', (remoteStream) => {
+                clearTimeout(callTimeoutTimer);
+                stopAudioSounds();
+                
+                document.getElementById('status').innerText = "Connected";
+                document.getElementById('avatar').className = "avatar-circle active";
+                document.getElementById('accept-btn').style.display = 'none';
+                document.getElementById('hangup-btn').style.display = 'flex';
+
+                const audio = new Audio();
+                audio.srcObject = remoteStream;
+                audio.play();
+            });
+
+            call.on('close', () => {
+                triggerCallEndedState("Call Ended");
+            });
+        }
+
+        // When local user hits Hang Up manually
+        function endCall() {
+            clearTimeout(callTimeoutTimer);
+            stopAudioSounds();
+            
+            if (dataConnection && dataConnection.open) {
+                dataConnection.send("HANGUP");
+            }
+            
+            setTimeout(() => {
+                if (pendingCallEvent) { pendingCallEvent.close(); pendingCallEvent = null; }
+                if (currentCall) { currentCall.close(); currentCall = null; }
+                triggerCallEndedState("Call Ended");
+            }, 100); 
+        }
+
+        // Special programmatic hang up for timeouts
+        function endCallWithStatus(statusMessage) {
+            clearTimeout(callTimeoutTimer);
+            stopAudioSounds();
+            if (pendingCallEvent) { pendingCallEvent.close(); pendingCallEvent = null; }
+            if (currentCall) { currentCall.close(); currentCall = null; }
+            triggerCallEndedState(statusMessage);
+        }
+
+        // Shows the descriptive ending state on both screens
+        function triggerCallEndedState(statusMessage) {
+            clearTimeout(callTimeoutTimer);
+            stopAudioSounds();
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+
+            document.getElementById('status').innerText = statusMessage;
+            document.getElementById('avatar').className = "avatar-circle ended";
+            document.getElementById('hangup-btn').style.display = 'none';
+            document.getElementById('accept-btn').style.display = 'none';
+
+            setTimeout(() => {
+                resetToReadyState();
+            }, 3000);
+        }
+
+        function resetToReadyState() {
+            const currentStatus = document.getElementById('status').innerText;
+            if (currentStatus === "Call Ended" || currentStatus === "No Answer") {
+                document.getElementById('status').innerText = "Ready";
+                document.getElementById('avatar').className = "avatar-circle";
+                document.getElementById('call-btn').style.display = 'flex';
+                document.getElementById('remote-id-input').style.display = 'block';
+                document.getElementById('accept-btn').style.display = 'none';
+                document.getElementById('hangup-btn').style.display = 'none';
+                currentCall = null;
+                pendingCallEvent = null;
+            }
+        }
+
+        initPeer();
+    </script>
+</body>
+</html>
