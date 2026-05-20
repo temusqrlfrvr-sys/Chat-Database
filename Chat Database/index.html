@@ -6,7 +6,7 @@
     <title>Global Communication Hub</title>
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" crossorigin="anonymous"></script>
-    
+
     <style>
         :root {
             --bg-darken: #020617;
@@ -54,14 +54,14 @@
         .right-panel { background-color: var(--bg-base); }
 
         h2 { margin-top: 0; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid var(--border-muted); padding-bottom: 10px; color: #f8fafc; }
-        
+
         .log-box {
             flex: 1; background-color: var(--bg-darken); border: 1px solid var(--border-muted);
             border-radius: 8px; padding: 18px; overflow-y: auto; margin-bottom: 15px;
             box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
         }
         .log-box p { margin: 8px 0; font-size: 14px; line-height: 1.5; word-break: break-word; }
-        
+
         .msg-server { color: #f59e0b; font-style: italic; font-weight: 500; }
         .msg-you { color: var(--clr-cyan); text-align: right; margin-left: 20%; }
         .msg-friend { color: var(--clr-emerald); text-align: left; margin-right: 20%; }
@@ -74,7 +74,7 @@
         }
         input:focus { outline: none; border-color: var(--clr-cyan); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
         input:disabled { background-color: var(--bg-darken); color: var(--text-low); cursor: not-allowed; border-color: var(--border-muted); }
-        
+
         button {
             background-color: var(--clr-cyan); color: #0f172a; border: none; border-radius: 6px;
             padding: 12px 24px; font-weight: 700; font-size: 14px; cursor: pointer;
@@ -96,206 +96,276 @@
             position: absolute; bottom: 20px; right: 20px; background: #f59e0b; color: #020617;
             padding: 15px 20px; border-radius: 8px; font-weight: 700; display: none; z-index: 100; cursor: pointer;
         }
+
+        /* --- PHONE FRIENDLY RESPONSIVE OVERRIDES --- */
+        @media (max-width: 768px) {
+            body { overflow-y: auto; height: auto; }
+            .workspace { flex-direction: column; overflow: visible; height: auto; }
+            .panel { flex: none; width: 100%; min-height: 450px; padding: 16px; }
+            .left-panel { border-right: none; border-bottom: 1px solid var(--border-muted); }
+            .controls { flex-wrap: wrap; }
+            input, button { width: 100%; }
+            #chat-target-input { max-width: 100% !important; }
+        }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
         <h1>Global Communication Hub</h1>
-        <p>Your Assigned Identity Signature: <span id="my-id">Allocating Network Route...</span></p>
+        <p>Your Secure ID Network Gateway: <span id="my-id">Generating...</span></p>
     </div>
 
     <div class="workspace">
+        
         <div class="panel left-panel">
-            <h2>💬 Global Chat Platform</h2>
-            <div class="log-box" id="chatbox">
-                <p class="msg-server">System Status: Booting core communication loop layers...</p>
+            <h2>💬 Secure Chat Feed</h2>
+            <div id="chat-log" class="log-box">
+                <p class="msg-server">System node active. Waiting for secure inbound/outbound tunnel requests...</p>
             </div>
             <div class="controls">
-                <input type="text" id="chat-target-input" placeholder="Peer ID Signature" style="max-width: 130px;">
-                <input type="text" id="message-input" placeholder="Type verified transmission..." disabled>
-                <button id="send-btn" disabled>Send</button>
+                <input type="text" id="chat-target-input" placeholder="Enter 4-digit Friend ID">
+                <input type="text" id="chat-message-input" placeholder="Type secure message string..." disabled>
+                <button id="chat-send-btn" disabled>Send Msg</button>
             </div>
-            <button id="connect-chat-btn" style="margin-top: 12px;" class="btn-action">Connect Chat Interface</button>
         </div>
 
         <div class="panel right-panel">
-            <h2>📞 Audio Calling Node</h2>
+            <h2>🔊 Realtime Voice Core</h2>
+            
             <div id="incoming-call-alert">
-                <span id="alert-text">📢 INCOMING SECURE VOICE REQUEST</span>
+                <span>⚠️ Inbound Secure Line Call Requesting Connection...</span>
                 <div class="alert-btn-group">
-                    <button id="accept-call-btn" class="btn-action">Accept (Y)</button>
-                    <button id="decline-call-btn" class="btn-decline">Decline (N)</button>
+                    <button id="call-accept-btn" class="btn-action">Accept</button>
+                    <button id="call-decline-btn" class="btn-decline">Decline</button>
                 </div>
             </div>
-            <div class="log-box" id="call-log">
-                <p style="color: #64748b; font-style: italic;">Awaiting telephony routing instruction matrix...</p>
+
+            <div id="voice-log" class="log-box">
+                <p class="msg-server">Audio loop module initialized. Standby for voice stream matrix links...</p>
             </div>
             <div class="controls">
-                <input type="text" id="call-target-input" placeholder="Enter Destination Network Code" inputmode="numeric" pattern="[0-9]*">
-                <button id="dial-call-btn">Call Audio</button>
-                <button id="hangup-call-btn" class="btn-decline">Hang Up</button>
+                <input type="text" id="voice-target-input" placeholder="Enter 4-digit Voice ID">
+                <button id="voice-dial-btn" class="btn-action">Dial Voice Line</button>
+                <button id="voice-hangup-btn" class="btn-decline" style="display:none;">Hang Up</button>
             </div>
         </div>
 
-        <div id="autoplay-bypass-overlay">⚠️ AUDIO LOCKED BY BROWSER: CLICK HERE TO UNMUTE</div>
+        <div id="autoplay-bypass-overlay">
+            ⚠️ Browser blocked media autoplay loop. Click anywhere here to force stream connection.
+        </div>
+
     </div>
 
-    <audio id="remote-audio" autoplay playsinline style="position: absolute; width:1px; height:1px; opacity:0; pointer-events:none;"></audio>
-
     <script>
-        (function() {
-            'use strict';
+        // System variables
+        let peer;
+        let dataConn = null;
+        let activeAudioCall = null;
+        let localAudioStream = null;
+        
+        const myIdDisplay = document.getElementById('my-id');
+        const chatLog = document.getElementById('chat-log');
+        const voiceLog = document.getElementById('voice-log');
+        
+        const chatTargetInput = document.getElementById('chat-target-input');
+        const chatMessageInput = document.getElementById('chat-message-input');
+        const chatSendBtn = document.getElementById('chat-send-btn');
+        
+        const voiceTargetInput = document.getElementById('voice-target-input');
+        const voiceDialBtn = document.getElementById('voice-dial-btn');
+        const voiceHangupBtn = document.getElementById('voice-hangup-btn');
+        const incomingAlert = document.getElementById('incoming-call-alert');
+        const acceptBtn = document.getElementById('call-accept-btn');
+        const declineBtn = document.getElementById('call-decline-btn');
+        const autoplayOverlay = document.getElementById('autoplay-bypass-overlay');
 
-            const AppState = {
-                peer: null, dataConn: null, activeCall: null, localStream: null,
-                pendingIncomingCall: null, identityName: "Node_Initializing", remotePartnerName: "Remote_Node"
-            };
+        // Helper: Output messaging UI logs
+        function logMsg(targetBox, text, className = "") {
+            const p = document.createElement('p');
+            p.innerText = text;
+            if(className) p.className = className;
+            targetBox.appendChild(p);
+            targetBox.scrollTop = targetBox.scrollHeight;
+        }
 
-            function getEl(id) { return document.getElementById(id); }
-            function generateShortId() { return Math.floor(1000 + Math.random() * 9000).toString(); }
+        // Generate a clean 4-digit number between 1000 and 9999
+        function generateFourDigitId() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
 
-            function appendChatLog(context, payload) {
-                const box = getEl('chatbox'); if (!box) return;
-                let logClass = "msg-friend";
-                if (context === "System" || context === "ServerLog") logClass = "msg-server";
-                if (context === "Error") logClass = "msg-system-err";
-                if (context === "You") logClass = "msg-you";
-                const line = document.createElement('p'); line.className = logClass;
-                line.innerHTML = `<strong>${context}:</strong> ${payload}`; box.appendChild(line); box.scrollTop = box.scrollHeight;
-            }
+        // Boot and initialize local Peer server handshake connection
+        function initNetworkNode() {
+            const customFourDigitId = generateFourDigitId();
 
-            function appendCallLog(messageString) {
-                const box = getEl('call-log'); if (!box) return;
-                const timestamp = new Date().toLocaleTimeString(); const line = document.createElement('p');
-                line.style.color = "#cbd5e1"; line.innerHTML = `<span style="color: #64748b; font-family: monospace;">[${timestamp}]</span> ${messageString}`;
-                box.appendChild(line); box.scrollTop = box.scrollHeight;
-            }
+            // Pass the 4-digit number explicitly to the constructor initialization loop
+            peer = new Peer(customFourDigitId, { debug: 2 });
 
-            function resetChatUI() {
-                const msgInput = getEl('message-input'); const sendBtn = getEl('send-btn');
-                if (msgInput) msgInput.disabled = true;
-                if (sendBtn) { sendBtn.disabled = true; sendBtn.classList.add('btn-disabled'); }
-                AppState.dataConn = null;
-            }
+            peer.on('open', (id) => {
+                myIdDisplay.innerText = id;
+                logMsg(chatLog, `[Network Log]: Successfully bridged link server. Global 4-digit node ID: ${id}`, "msg-server");
+            });
 
-            function releaseHardwareTracks() {
-                if (AppState.localStream) {
-                    try { AppState.localStream.getTracks().forEach(track => track.stop()); } catch (e) {}
-                    AppState.localStream = null;
+            peer.on('error', (err) => {
+                // Handle the case where someone else is already using that specific 4-digit ID number
+                if (err.type === 'unavailable-id') {
+                    logMsg(chatLog, `[ID Collision]: ID ${customFourDigitId} taken. Retrying new connection block...`, "msg-system-err");
+                    setTimeout(initNetworkNode, 1000);
+                    return;
                 }
-                AppState.activeCall = null;
-                const remoteAudio = getEl('remote-audio');
-                if (remoteAudio) { remoteAudio.srcObject = null; remoteAudio.src = ""; }
-                getEl('incoming-call-alert').style.display = "none";
-                getEl('autoplay-bypass-overlay').style.display = "none";
-            }
+                logMsg(chatLog, `[Critical Error]: ${err.type} - Protocol halted.`, "msg-system-err");
+                console.error("PeerJS Core Error Intercept:", err);
+            });
 
-            function bootNetworkEngine() {
-                const nodeSignature = generateShortId();
-                AppState.peer = new Peer(nodeSignature, {
-                    debug: 1, config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }, { 'urls': 'stun:stun1.l.google.com:19302' }] }
-                });
+            // Handle incoming data text connection arrays
+            peer.on('connection', (conn) => {
+                if (dataConn) {
+                    conn.close();
+                    return;
+                }
+                dataConn = conn;
+                setupDataChannelListeners();
+                chatTargetInput.value = dataConn.peer;
+                logMsg(chatLog, `[Tunnel Established]: Inbound connection secured from remote node: ${dataConn.peer}`, "msg-server");
+            });
 
-                AppState.peer.on('open', (assignedId) => {
-                    AppState.identityName = "User_" + assignedId; getEl('my-id').innerText = assignedId;
-                    appendChatLog("System", `Network registration success. Dynamic routing key: ${AppState.identityName}`);
-                    appendCallLog(`Telephony node bound to identity gateway: ${assignedId}`);
-                });
+            // Handle incoming audio call vectors
+            peer.on('call', (incomingCall) => {
+                logMsg(voiceLog, `[Inbound Signal]: Line ping received from endpoint connection node...`, "msg-server");
+                incomingAlert.style.display = "flex";
 
-                AppState.peer.on('connection', (incomingConnectionChannel) => {
-                    if (AppState.dataConn) { incomingConnectionChannel.close(); return; }
-                    AppState.dataConn = incomingConnectionChannel; bindDataChannelEventHooks();
-                });
+                // Accept line link
+                acceptBtn.onclick = async () => {
+                    incomingAlert.style.display = "none";
+                    try {
+                        localAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                        activeAudioCall = incomingCall;
+                        activeAudioCall.answer(localAudioStream);
+                        setupAudioStreamListeners();
+                    } catch (err) {
+                        logMsg(voiceLog, `[Media Refused]: Could not capture audio inputs. Check site mic permissions.`, "msg-system-err");
+                        incomingCall.close();
+                    }
+                };
 
-                AppState.peer.on('call', (incomingVoiceStreamChannel) => {
-                    AppState.pendingIncomingCall = incomingVoiceStreamChannel;
-                    appendCallLog(`📢 INCOMING VOICE CHANNEL DETECTED FROM PEER: ${incomingVoiceStreamChannel.peer}`);
-                    getEl('incoming-call-alert').style.display = "flex";
-                });
+                // Reject line link
+                declineBtn.onclick = () => {
+                    incomingAlert.style.display = "none";
+                    logMsg(voiceLog, `[System]: Terminated inbound connection request.`, "msg-system-err");
+                    incomingCall.close();
+                };
+            });
+        }
 
-                AppState.peer.on('error', (networkError) => {
-                    if (networkError.type === 'unavailable-id') { setTimeout(bootNetworkEngine, 500); } 
-                    else if (networkError.type === 'peer-not-found') { alert("Target verification entry failed."); resetChatUI(); }
-                });
-            }
+        // Bind incoming messaging flow actions
+        function setupDataChannelListeners() {
+            chatMessageInput.disabled = false;
+            chatSendBtn.disabled = false;
+            chatTargetInput.disabled = true;
 
-            function bindDataChannelEventHooks() {
-                if (!AppState.dataConn) return;
-                AppState.dataConn.on('open', () => {
-                    AppState.remotePartnerName = "User_" + AppState.dataConn.peer;
-                    appendChatLog("ServerLog", `${AppState.remotePartnerName} connected.`);
-                    getEl('message-input').disabled = false; getEl('send-btn').disabled = false;
-                });
-                AppState.dataConn.on('data', (data) => appendChatLog("Friend", data));
-                AppState.dataConn.on('close', () => { appendChatLog("ServerLog", `Disconnected.`); resetChatUI(); });
-            }
+            dataConn.on('data', (data) => {
+                logMsg(chatLog, `${dataConn.peer}: ${data}`, "msg-friend");
+            });
 
-            window.initializeChatChannel = function() {
-                const targetCode = getEl('chat-target-input').value.trim();
-                if (!targetCode) return alert("Target destination identity code required.");
-                AppState.dataConn = AppState.peer.connect(targetCode, { reliable: true });
-                bindDataChannelEventHooks();
-            };
+            dataConn.on('close', () => {
+                logMsg(chatLog, `[Tunnel Dropped]: Remote participant terminated transmission node line.`, "msg-system-err");
+                dataConn = null;
+                chatMessageInput.disabled = true;
+                chatSendBtn.disabled = true;
+                chatTargetInput.disabled = false;
+                chatTargetInput.value = "";
+            });
+        }
 
-            window.sendMessage = function() {
-                const msgInput = getEl('message-input'); const messagePayload = msgInput.value.trim();
-                if (!messagePayload || !AppState.dataConn) return;
-                AppState.dataConn.send(messagePayload); appendChatLog("You", messagePayload); msgInput.value = "";
-            };
+        // Bind incoming/outgoing background hardware audio loop streams
+        function setupAudioStreamListeners() {
+            voiceDialBtn.style.display = "none";
+            voiceHangupBtn.style.display = "inline-block";
+            voiceTargetInput.disabled = true;
+            logMsg(voiceLog, `[Line Status]: Voice transmission line linked. Connecting call audio stream...`, "msg-server");
 
-            window.dialAudioStream = function() {
-                const destinationRouteCode = getEl('call-target-input').value.trim();
-                if (!destinationRouteCode) return alert("Destination code required.");
-                navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then((stream) => {
-                    AppState.localStream = stream;
-                    const outboundCallInstance = AppState.peer.call(destinationRouteCode, stream);
-                    AppState.activeCall = outboundCallInstance; bindAudioStreamEventHooks(outboundCallInstance);
-                }).catch(() => appendCallLog("CRITICAL: Microphone access denied or blocked by browser origin."));
-            };
+            activeAudioCall.on('stream', (remoteStream) => {
+                const oldAudio = document.getElementById('remote-audio-node');
+                if(oldAudio) oldAudio.remove();
 
-            window.acceptCallAction = function() {
-                if (!AppState.pendingIncomingCall) return;
-                getEl('incoming-call-alert').style.display = "none";
-                navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then((stream) => {
-                    AppState.localStream = stream; AppState.pendingIncomingCall.answer(stream);
-                    AppState.activeCall = AppState.pendingIncomingCall; bindAudioStreamEventHooks(AppState.pendingIncomingCall);
-                    AppState.pendingIncomingCall = null;
-                }).catch(() => releaseHardwareTracks());
-            };
+                const audio = document.createElement('audio');
+                audio.id = 'remote-audio-node';
+                audio.srcObject = remoteStream;
+                audio.autoplay = true;
+                document.body.appendChild(audio);
 
-            window.declineCallAction = function() {
-                if (!AppState.pendingIncomingCall) return; getEl('incoming-call-alert').style.display = "none";
-                try { AppState.pendingIncomingCall.close(); } catch(e) {} AppState.pendingIncomingCall = null;
-            };
-
-            function bindAudioStreamEventHooks(callSessionInstance) {
-                callSessionInstance.on('stream', (incomingRemoteAudioStream) => {
-                    const audioPlaybackNode = getEl('remote-audio'); if (!audioPlaybackNode) return;
-                    audioPlaybackNode.srcObject = incomingRemoteAudioStream;
-                    audioPlaybackNode.onloadedmetadata = function() {
-                        audioPlaybackNode.play().catch(() => {
-                            const bypassOverlay = getEl('autoplay-bypass-overlay'); bypassOverlay.style.display = "block";
-                            bypassOverlay.onclick = function() { audioPlaybackNode.play(); bypassOverlay.style.display = "none"; };
-                        });
+                audio.play().catch(error => {
+                    console.warn("Autoplay block caught:", error);
+                    autoplayOverlay.style.display = "block";
+                    autoplayOverlay.onclick = () => {
+                        audio.play();
+                        autoplayOverlay.style.display = "none";
                     };
                 });
-                callSessionInstance.on('close', () => releaseHardwareTracks());
-            }
 
-            window.hangupAudioStream = function() { if (AppState.activeCall) { AppState.activeCall.close(); } releaseHardwareTracks(); };
-
-            document.addEventListener("DOMContentLoaded", () => {
-                getEl('connect-chat-btn').addEventListener('click', window.initializeChatChannel);
-                getEl('send-btn').addEventListener('click', window.sendMessage);
-                getEl('dial-call-btn').addEventListener('click', window.dialAudioStream);
-                getEl('hangup-call-btn').addEventListener('click', window.hangupAudioStream);
-                getEl('accept-call-btn').addEventListener('click', window.acceptCallAction);
-                getEl('decline-call-btn').addEventListener('click', window.declineCallAction);
-                getEl('message-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') window.sendMessage(); });
-                bootNetworkEngine();
+                logMsg(voiceLog, `[Success]: Full-duplex realtime audio transmission node loop live.`, "msg-server");
             });
-        })();
+
+            activeAudioCall.on('close', () => {
+                logMsg(voiceLog, `[Line Status]: Audio call link disconnected cleanly.`, "msg-system-err");
+                cleanupAudioCall();
+            });
+        }
+
+        function cleanupAudioCall() {
+            if (activeAudioCall) activeAudioCall.close();
+            if (localAudioStream) {
+                localAudioStream.getTracks().forEach(track => track.stop());
+            }
+            const audioNode = document.getElementById('remote-audio-node');
+            if (audioNode) audioNode.remove();
+
+            activeAudioCall = null;
+            localAudioStream = null;
+            voiceDialBtn.style.display = "inline-block";
+            voiceHangupBtn.style.display = "none";
+            voiceTargetInput.disabled = false;
+        }
+
+        // Outbound Manual Action Click Trigger Bindings
+        chatSendBtn.addEventListener('click', () => {
+            const msg = chatMessageInput.value.trim();
+            if (!msg || !dataConn) return;
+            dataConn.send(msg);
+            logMsg(chatLog, `You: ${msg}`, "msg-you");
+            chatMessageInput.value = "";
+        });
+
+        chatTargetInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const targetId = chatTargetInput.value.trim();
+                if (!targetId || targetId === peer.id) return;
+                dataConn = peer.connect(targetId);
+                setupDataChannelListeners();
+                logMsg(chatLog, `[Tunnel Outbound]: Initializing handshake bridge parameters with target: ${targetId}...`, "msg-server");
+            }
+        });
+
+        voiceDialBtn.addEventListener('click', async () => {
+            const targetId = voiceTargetInput.value.trim();
+            if (!targetId || targetId === peer.id) return;
+
+            logMsg(voiceLog, `[Outbound Dialing]: Attempting to open network voice bridge to: ${targetId}...`, "msg-server");
+            try {
+                localAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                activeAudioCall = peer.call(targetId, localAudioStream);
+                setupAudioStreamListeners();
+            } catch (err) {
+                logMsg(voiceLog, `[Media Blocked]: Connection failed. Microphone system permission denied.`, "msg-system-err");
+            }
+        });
+
+        voiceHangupBtn.addEventListener('click', () => {
+            cleanupAudioCall();
+        });
+
+        // Initialize script loop routine
+        initNetworkNode();
     </script>
 </body>
 </html>
